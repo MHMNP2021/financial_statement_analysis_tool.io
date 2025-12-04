@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Financial Statement Analyzer</title>
+    <title>Financial Statement Analyzer - Pro Edition</title>
+    <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@4.0.379/build/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/papaparse/5.4.1/papaparse.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -16,182 +16,189 @@
         }
 
         :root {
-            --primary: #0f172a;
-            --primary-light: #1e293b;
-            --accent: #3b82f6;
-            --accent-light: #60a5fa;
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #10b981;
+            --accent: #f59e0b;
+            --danger: #ef4444;
+            --bg: #0f172a;
+            --bg-light: #1e293b;
+            --bg-lighter: #334155;
+            --text: #f1f5f9;
+            --text-muted: #cbd5e1;
+            --border: #475569;
             --success: #10b981;
             --warning: #f59e0b;
-            --danger: #ef4444;
-            --bg: #f8fafc;
-            --card-bg: #ffffff;
-            --text: #0f172a;
-            --text-light: #64748b;
-            --border: #e2e8f0;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, var(--bg) 0%, #ecf0f5 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--bg) 0%, #1a1f3a 100%);
             color: var(--text);
-            min-height: 100vh;
-            padding: 20px;
+            line-height: 1.6;
+            overflow-x: hidden;
         }
 
         .container {
             max-width: 1400px;
             margin: 0 auto;
+            padding: 20px;
         }
 
-        header {
+        /* ===== HEADER ===== */
+        .header {
             text-align: center;
-            margin-bottom: 40px;
-            animation: slideDown 0.6s ease;
+            padding: 40px 20px 30px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            border-radius: 16px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(99, 102, 241, 0.2);
         }
 
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .logo {
-            font-size: 32px;
-            font-weight: 800;
-            background: linear-gradient(135deg, var(--accent) 0%, #1e40af 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+        .header h1 {
+            font-size: 2.5em;
             margin-bottom: 10px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
         }
 
-        .subtitle {
-            color: var(--text-light);
-            font-size: 16px;
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.95;
             margin-bottom: 5px;
         }
 
-        .section-title {
-            font-size: 20px;
-            font-weight: 700;
-            margin: 30px 0 20px 0;
-            color: var(--primary);
-            display: flex;
-            align-items: center;
-            gap: 10px;
+        .header-subtitle {
+            font-size: 0.9em;
+            opacity: 0.85;
+            margin-top: 10px;
         }
 
+        /* ===== MAIN LAYOUT ===== */
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 1024px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ===== CARD STYLES ===== */
         .card {
-            background: var(--card-bg);
-            border-radius: 12px;
-            padding: 24px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-            margin-bottom: 20px;
+            background: var(--bg-light);
             border: 1px solid var(--border);
-            animation: fadeIn 0.5s ease;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .card:hover {
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
             transition: all 0.3s ease;
         }
 
+        .card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 8px 30px rgba(99, 102, 241, 0.15);
+        }
+
+        .card-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--primary);
+        }
+
+        .card-title::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 24px;
+            background: linear-gradient(180deg, var(--primary) 0%, var(--secondary) 100%);
+            border-radius: 2px;
+        }
+
+        /* ===== FORM STYLES ===== */
         .form-group {
-            margin-bottom: 18px;
+            margin-bottom: 20px;
         }
 
         label {
             display: block;
             margin-bottom: 8px;
-            font-weight: 600;
-            font-size: 14px;
-            color: var(--primary);
+            font-weight: 500;
+            font-size: 0.95em;
+            color: var(--text);
         }
 
         input[type="text"],
         input[type="number"],
-        input[type="email"],
-        input[type="password"],
         input[type="file"],
-        select {
+        select,
+        textarea {
             width: 100%;
-            padding: 12px 14px;
+            padding: 12px 15px;
             border: 1px solid var(--border);
             border-radius: 8px;
-            font-size: 14px;
+            background: var(--bg);
+            color: var(--text);
+            font-size: 0.95em;
             transition: all 0.3s ease;
-            background: white;
         }
 
         input[type="text"]:focus,
         input[type="number"]:focus,
-        input[type="email"]:focus,
-        input[type="password"]:focus,
         input[type="file"]:focus,
-        select:focus {
+        select:focus,
+        textarea:focus {
             outline: none;
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+            background: rgba(99, 102, 241, 0.05);
         }
 
-        input[type="file"] {
-            cursor: pointer;
-            padding: 10px;
+        textarea {
+            resize: vertical;
+            min-height: 100px;
         }
 
-        .button-group {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-            margin-bottom: 20px;
-        }
-
-        button {
+        /* ===== BUTTON STYLES ===== */
+        .btn {
             padding: 12px 24px;
             border: none;
             border-radius: 8px;
+            font-size: 1em;
             font-weight: 600;
-            font-size: 14px;
             cursor: pointer;
             transition: all 0.3s ease;
-            display: flex;
+            display: inline-flex;
             align-items: center;
             gap: 8px;
+            text-decoration: none;
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, var(--accent) 0%, #1e40af 100%);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
             color: white;
         }
 
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 16px rgba(59, 130, 246, 0.3);
+            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
         }
 
         .btn-secondary {
-            background: var(--primary-light);
-            color: white;
+            background: var(--bg-lighter);
+            color: var(--text);
+            border: 1px solid var(--border);
         }
 
         .btn-secondary:hover {
-            background: var(--primary);
+            background: var(--border);
         }
 
         .btn-success {
@@ -200,16 +207,8 @@
         }
 
         .btn-success:hover {
-            background: #059669;
-        }
-
-        .btn-warning {
-            background: var(--warning);
-            color: white;
-        }
-
-        .btn-warning:hover {
-            background: #d97706;
+            opacity: 0.9;
+            transform: translateY(-2px);
         }
 
         .btn-danger {
@@ -218,67 +217,197 @@
         }
 
         .btn-danger:hover {
-            background: #dc2626;
+            opacity: 0.9;
         }
 
-        .btn-small {
-            padding: 8px 16px;
-            font-size: 12px;
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 20px;
         }
 
-        .period-selector {
+        /* ===== FLEX GRID ===== */
+        .flex-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
             gap: 10px;
-            margin-bottom: 20px;
+            margin-top: 15px;
         }
 
         .period-btn {
-            padding: 10px 12px;
+            padding: 10px 15px;
             border: 2px solid var(--border);
-            background: white;
-            border-radius: 8px;
-            font-weight: 600;
+            background: var(--bg);
+            color: var(--text);
+            border-radius: 6px;
             cursor: pointer;
+            font-weight: 500;
             transition: all 0.3s ease;
-            color: var(--text-light);
         }
 
         .period-btn.active {
-            background: var(--accent);
+            background: var(--primary);
+            border-color: var(--primary);
             color: white;
-            border-color: var(--accent);
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.3);
         }
 
-        .period-btn:hover {
-            border-color: var(--accent);
-            transform: translateY(-2px);
+        /* ===== STATUS MESSAGES ===== */
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.95em;
         }
 
+        .alert-success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid var(--success);
+            color: #86efac;
+        }
+
+        .alert-error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid var(--danger);
+            color: #fca5a5;
+        }
+
+        .alert-info {
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid var(--primary);
+            color: #c7d2fe;
+        }
+
+        .alert-warning {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid var(--warning);
+            color: #fcd34d;
+        }
+
+        /* ===== TABLE STYLES ===== */
+        .table-responsive {
+            overflow-x: auto;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95em;
+        }
+
+        th {
+            background: rgba(99, 102, 241, 0.1);
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid var(--primary);
+            color: var(--primary);
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        tr:hover {
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        /* ===== RATIO DISPLAY ===== */
+        .ratio-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .ratio-card {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(16, 185, 129, 0.1) 100%);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .ratio-label {
+            font-size: 0.85em;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .ratio-value {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+
+        .ratio-change {
+            font-size: 0.8em;
+            color: var(--text-muted);
+        }
+
+        .ratio-change.positive {
+            color: var(--success);
+        }
+
+        .ratio-change.negative {
+            color: var(--danger);
+        }
+
+        /* ===== CHART CONTAINER ===== */
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-top: 20px;
+            background: var(--bg);
+            border-radius: 8px;
+            padding: 15px;
+            border: 1px solid var(--border);
+        }
+
+        /* ===== TABS ===== */
         .tabs {
             display: flex;
             gap: 10px;
             margin-bottom: 20px;
             border-bottom: 2px solid var(--border);
-            overflow-x: auto;
         }
 
         .tab-btn {
             padding: 12px 20px;
             background: none;
             border: none;
-            border-bottom: 3px solid transparent;
-            font-weight: 600;
+            color: var(--text-muted);
             cursor: pointer;
-            color: var(--text-light);
+            font-weight: 600;
+            border-bottom: 3px solid transparent;
             transition: all 0.3s ease;
-            white-space: nowrap;
         }
 
         .tab-btn.active {
-            color: var(--accent);
-            border-bottom-color: var(--accent);
+            color: var(--primary);
+            border-bottom-color: var(--primary);
         }
 
         .tab-content {
@@ -290,1442 +419,1534 @@
             animation: fadeIn 0.3s ease;
         }
 
-        .data-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
-        .data-input {
+        /* ===== EXPORT OPTIONS ===== */
+        .export-section {
             display: flex;
-            flex-direction: column;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 20px;
         }
 
-        .ratio-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
+        /* ===== DATA STATUS ===== */
+        .data-status {
+            background: rgba(99, 102, 241, 0.05);
+            border-left: 4px solid var(--primary);
+            padding: 12px 15px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            font-size: 0.9em;
         }
 
-        .ratio-card {
-            background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary) 100%);
-            color: white;
-            padding: 20px;
-            border-radius: 12px;
-            text-align: center;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        .data-status.success {
+            border-left-color: var(--success);
+            background: rgba(16, 185, 129, 0.05);
         }
 
-        .ratio-label {
-            font-size: 12px;
-            opacity: 0.8;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+        .data-status.error {
+            border-left-color: var(--danger);
+            background: rgba(239, 68, 68, 0.05);
         }
 
-        .ratio-value {
-            font-size: 32px;
-            font-weight: 800;
-            margin-bottom: 8px;
-        }
-
-        .ratio-trend {
-            font-size: 12px;
-            opacity: 0.9;
-        }
-
-        .trend-up {
-            color: var(--success);
-        }
-
-        .trend-down {
-            color: var(--danger);
-        }
-
-        .trend-neutral {
-            color: var(--text-light);
-        }
-
-        .alert {
-            padding: 14px 16px;
+        /* ===== AI INSIGHTS ===== */
+        .ai-insights {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(245, 158, 11, 0.1) 100%);
+            border: 1px solid var(--primary);
             border-radius: 8px;
-            margin-bottom: 16px;
-            display: flex;
-            gap: 12px;
-            align-items: flex-start;
-        }
-
-        .alert-info {
-            background: #dbeafe;
-            color: #0c4a6e;
-            border: 1px solid #bfdbfe;
-        }
-
-        .alert-success {
-            background: #dcfce7;
-            color: #166534;
-            border: 1px solid #bbf7d0;
-        }
-
-        .alert-warning {
-            background: #fef3c7;
-            color: #92400e;
-            border: 1px solid #fde68a;
-        }
-
-        .alert-danger {
-            background: #fee2e2;
-            color: #991b1b;
-            border: 1px solid #fecaca;
-        }
-
-        .chart-container {
-            position: relative;
-            height: 300px;
-            margin-bottom: 30px;
-            background: white;
             padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            margin-top: 20px;
         }
 
-        .insights-container {
-            background: linear-gradient(135deg, #f0f9ff 0%, #f5f3ff 100%);
-            padding: 20px;
-            border-radius: 12px;
-            border-left: 4px solid var(--accent);
-            margin-bottom: 20px;
-        }
-
-        .insights-title {
-            font-weight: 700;
+        .ai-insights h3 {
             color: var(--primary);
-            margin-bottom: 12px;
-            font-size: 16px;
-        }
-
-        .insights-text {
-            color: var(--text);
-            line-height: 1.6;
-            font-size: 14px;
-        }
-
-        .insights-loading {
+            margin-bottom: 15px;
             display: flex;
             align-items: center;
             gap: 10px;
-            color: var(--text-light);
         }
 
+        .ai-insights-content {
+            line-height: 1.8;
+            color: var(--text);
+        }
+
+        .ai-insights-content p {
+            margin-bottom: 10px;
+        }
+
+        .insight-point {
+            display: flex;
+            gap: 10px;
+            margin: 10px 0;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 6px;
+            border-left: 3px solid var(--primary);
+        }
+
+        .insight-point strong {
+            color: var(--primary);
+            min-width: 80px;
+        }
+
+        /* ===== LOADING ===== */
         .spinner {
-            border: 3px solid var(--border);
-            border-top-color: var(--accent);
-            border-radius: 50%;
+            display: inline-block;
             width: 20px;
             height: 20px;
-            animation: spin 0.8s linear infinite;
+            border: 3px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
         }
 
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
 
-        .table-responsive {
-            overflow-x: auto;
-            margin-bottom: 20px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 14px;
-        }
-
-        th, td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid var(--border);
-        }
-
-        th {
-            background: var(--primary-light);
-            color: white;
-            font-weight: 600;
-        }
-
-        tr:hover {
-            background: var(--bg);
-        }
-
-        .export-buttons {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: var(--text-light);
-        }
-
-        .empty-state-icon {
-            font-size: 48px;
-            margin-bottom: 16px;
-        }
-
-        .empty-state-title {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: var(--text);
-        }
-
-        .empty-state-text {
-            font-size: 14px;
-            margin-bottom: 24px;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            animation: fadeIn 0.3s ease;
-        }
-
-        .modal.show {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal-content {
-            background-color: var(--card-bg);
-            padding: 30px;
-            border-radius: 12px;
-            max-width: 500px;
-            width: 90%;
-            max-height: 80vh;
-            overflow-y: auto;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            font-size: 20px;
-            font-weight: 700;
-        }
-
-        .close {
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-            color: var(--text-light);
-            transition: color 0.3s ease;
-        }
-
-        .close:hover {
-            color: var(--text);
-        }
-
-        .success-badge {
-            display: inline-block;
-            background: var(--success);
-            color: white;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            margin-top: 10px;
-        }
-
-        .error-badge {
-            display: inline-block;
-            background: var(--danger);
-            color: white;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            margin-top: 10px;
-        }
-
+        /* ===== MOBILE ===== */
         @media (max-width: 768px) {
-            .data-grid {
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .grid {
                 grid-template-columns: 1fr;
             }
 
             .ratio-grid {
-                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                grid-template-columns: repeat(2, 1fr);
             }
 
-            .card {
-                padding: 16px;
+            .btn-group {
+                flex-direction: column;
             }
 
-            .logo {
-                font-size: 24px;
-            }
-
-            .chart-container {
-                height: 250px;
-            }
-
-            button {
+            .btn {
                 width: 100%;
+                justify-content: center;
+            }
+
+            .tabs {
+                flex-wrap: wrap;
             }
         }
 
-        .hide {
-            display: none;
+        /* ===== HIDE ELEMENTS ===== */
+        .hidden {
+            display: none !important;
+        }
+
+        .section {
+            margin-top: 30px;
+        }
+
+        .success-banner {
+            background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .full-width {
+            width: 100%;
+        }
+
+        /* Icon Styles */
+        .icon {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            margin-right: 5px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <header>
-            <div class="logo">📊 Financial Analyzer</div>
-            <p class="subtitle">Analyze financial statements, calculate ratios & get AI insights</p>
-        </header>
-
-        <!-- Step 1: Analysis Period & File Upload -->
-        <div class="card">
-            <div class="section-title">📅 Step 1: Select Analysis Period</div>
-            <p style="color: var(--text-light); margin-bottom: 20px; font-size: 14px;">Choose how many years you want to analyze (1-5 years)</p>
-            <div class="period-selector">
-                <button class="period-btn" onclick="setPeriod(1)">1 Year</button>
-                <button class="period-btn" onclick="setPeriod(2)">2 Years</button>
-                <button class="period-btn active" onclick="setPeriod(3)">3 Years</button>
-                <button class="period-btn" onclick="setPeriod(4)">4 Years</button>
-                <button class="period-btn" onclick="setPeriod(5)">5 Years</button>
-            </div>
-            <input type="hidden" id="analysisPeriod" value="3">
+        <!-- HEADER -->
+        <div class="header">
+            <h1>📊 Financial Statement Analyzer</h1>
+            <p>Professional Financial Ratio Analysis & AI-Powered Insights</p>
+            <div class="header-subtitle">Upload PDFs, Excel, or CSV files • Auto-Parse Financial Data • Get Instant Analysis</div>
         </div>
 
-        <!-- Step 2: File Upload -->
-        <div class="card">
-            <div class="section-title">📁 Step 2: Upload Financial Statements</div>
-            <p style="color: var(--text-light); margin-bottom: 20px; font-size: 14px;">Upload PDF, Excel, or CSV files with financial data. We'll automatically extract the data.</p>
-            
-            <div class="form-group">
-                <label>Company Name</label>
-                <input type="text" id="companyName" placeholder="e.g., Apple Inc., Tesla, Microsoft">
+        <!-- MAIN CONTENT -->
+        <div class="grid">
+            <!-- LEFT COLUMN: UPLOAD & DATA INPUT -->
+            <div class="card">
+                <div class="card-title">📁 Upload Financial Statements</div>
+                
+                <div class="form-group">
+                    <label for="analysisYears">Analysis Period (Years)</label>
+                    <div class="flex-grid">
+                        <button class="period-btn active" data-years="1">1 Year</button>
+                        <button class="period-btn" data-years="2">2 Years</button>
+                        <button class="period-btn" data-years="3">3 Years</button>
+                        <button class="period-btn" data-years="4">4 Years</button>
+                        <button class="period-btn" data-years="5">5 Years</button>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-top: 20px;">
+                    <label for="fileInput">Select Files (PDF, Excel, CSV)</label>
+                    <input type="file" id="fileInput" multiple accept=".pdf,.xlsx,.xls,.csv">
+                    <p style="font-size: 0.8em; color: var(--text-muted); margin-top: 8px;">
+                        💡 Tip: Upload balance sheets, income statements, and cash flow statements. The app will auto-detect and parse them.
+                    </p>
+                </div>
+
+                <div id="uploadStatus" class="hidden"></div>
+
+                <div id="parsedDataSummary" class="hidden" style="margin-top: 20px;">
+                    <div class="data-status success">
+                        ✓ Data auto-parsed successfully!
+                    </div>
+                </div>
+
+                <!-- COMPANY INFO FORM -->
+                <div class="section" style="margin-top: 30px;">
+                    <div class="card-title" style="font-size: 1.1em; margin-bottom: 15px;">🏢 Company Information</div>
+                    
+                    <div class="form-group">
+                        <label for="companyName">Company Name</label>
+                        <input type="text" id="companyName" placeholder="e.g., Union Assurance">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="analysisPeriodText">Analysis Period</label>
+                        <input type="text" id="analysisPeriodText" placeholder="e.g., 2020-2024" readonly>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="currency">Currency</label>
+                        <input type="text" id="currency" placeholder="e.g., Rs., USD, EUR" value="Rs.">
+                    </div>
+                </div>
             </div>
 
-            <div class="form-group">
-                <label>Upload Financial Statements (PDF, Excel, or CSV)</label>
-                <input type="file" id="fileUpload" multiple accept=".pdf,.xlsx,.xls,.csv" onchange="handleFileUpload(event)">
-                <small style="color: var(--text-light); margin-top: 8px; display: block;">Supported: PDF, Excel (.xlsx), CSV files. Attach as many as you need.</small>
+            <!-- RIGHT COLUMN: FINANCIAL DATA INPUT -->
+            <div class="card">
+                <div class="card-title">📈 Financial Data (Optional Manual Entry)</div>
+                
+                <p style="color: var(--text-muted); margin-bottom: 15px; font-size: 0.9em;">
+                    💡 If auto-parsing extracted your data, this section is optional. Manually enter data only if needed.
+                </p>
+
+                <div class="tabs">
+                    <button class="tab-btn active" onclick="switchTab('income-data')">Income Statement</button>
+                    <button class="tab-btn" onclick="switchTab('balance-data')">Balance Sheet</button>
+                    <button class="tab-btn" onclick="switchTab('cash-data')">Cash Flow</button>
+                </div>
+
+                <!-- INCOME STATEMENT TAB -->
+                <div id="income-data" class="tab-content active">
+                    <div class="form-group">
+                        <label>Revenue (in thousands)</label>
+                        <div id="revenueInputs"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Net Income (in thousands)</label>
+                        <div id="netIncomeInputs"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Operating Expenses</label>
+                        <div id="expensesInputs"></div>
+                    </div>
+                </div>
+
+                <!-- BALANCE SHEET TAB -->
+                <div id="balance-data" class="tab-content">
+                    <div class="form-group">
+                        <label>Total Assets (in thousands)</label>
+                        <div id="assetsInputs"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Total Liabilities (in thousands)</label>
+                        <div id="liabilitiesInputs"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Total Equity (in thousands)</label>
+                        <div id="equityInputs"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Current Assets (in thousands)</label>
+                        <div id="currentAssetsInputs"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Current Liabilities (in thousands)</label>
+                        <div id="currentLiabilitiesInputs"></div>
+                    </div>
+                </div>
+
+                <!-- CASH FLOW TAB -->
+                <div id="cash-data" class="tab-content">
+                    <div class="form-group">
+                        <label>Operating Cash Flow (in thousands)</label>
+                        <div id="ocfInputs"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Free Cash Flow (in thousands)</label>
+                        <div id="fcfInputs"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Capital Expenditures (in thousands)</label>
+                        <div id="capexInputs"></div>
+                    </div>
+                </div>
             </div>
+        </div>
 
-            <div id="uploadStatus" class="hide" style="margin-bottom: 16px;"></div>
-
-            <button class="btn-primary" onclick="parseFiles()">
-                <span>🔍 Parse Files</span>
+        <!-- ANALYZE BUTTON -->
+        <div style="margin-bottom: 30px;">
+            <button class="btn btn-primary" onclick="analyzeFinancials()" style="font-size: 1.1em; padding: 15px 40px;">
+                🔍 Analyze Financial Statements
+            </button>
+            <button class="btn btn-secondary" onclick="resetApp()" style="font-size: 1.1em; padding: 15px 40px;">
+                🔄 Reset All
             </button>
         </div>
 
-        <!-- Step 3: Data Entry / Review -->
-        <div class="card">
-            <div class="section-title">📝 Step 3: Financial Data (Auto-filled or Manual)</div>
-            <p style="color: var(--text-light); margin-bottom: 20px; font-size: 14px;">Your data is automatically populated from uploaded files. You can edit or add data manually if needed.</p>
-
-            <div class="tabs">
-                <button class="tab-btn active" onclick="switchTab('auto-parsed')">📄 Auto-Parsed Data</button>
-                <button class="tab-btn" onclick="switchTab('manual-entry')">✏️ Manual Entry</button>
-            </div>
-
-            <!-- Auto-Parsed Tab -->
-            <div id="auto-parsed" class="tab-content active">
-                <div id="parsedDataDisplay" style="margin-bottom: 20px; max-height: 400px; overflow-y: auto;"></div>
-            </div>
-
-            <!-- Manual Entry Tab -->
-            <div id="manual-entry" class="tab-content">
-                <div id="manualDataForm"></div>
-                <button class="btn-secondary" onclick="addManualDataYear()">+ Add Year</button>
-            </div>
-
-            <button class="btn-success" style="margin-top: 20px;" onclick="proceedToAnalysis()">✓ Proceed to Analysis</button>
-        </div>
-
-        <!-- Step 4: Financial Analysis -->
-        <div class="card" id="analysisCard" style="display: none;">
-            <div class="section-title">📊 Step 4: Financial Analysis Results</div>
-
-            <!-- Year Selection for Charts -->
-            <div style="margin-bottom: 20px;">
-                <label style="margin-bottom: 10px;">Select Years to Display:</label>
-                <div id="yearSelection" style="display: flex; gap: 10px; flex-wrap: wrap;"></div>
-            </div>
-
-            <!-- Charts Section -->
-            <div style="margin-bottom: 30px;">
-                <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 15px;">📈 Key Trends</h3>
-                <div class="chart-container">
-                    <canvas id="ratioChart"></canvas>
+        <!-- RESULTS SECTION -->
+        <div id="resultsSection" class="hidden">
+            <!-- SUMMARY CARDS -->
+            <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));">
+                <div class="card">
+                    <div style="color: var(--text-muted); font-size: 0.9em; margin-bottom: 10px;">Company</div>
+                    <div id="summaryCompany" style="font-size: 1.8em; font-weight: 700; color: var(--primary);">-</div>
                 </div>
-                <div class="chart-container">
-                    <canvas id="trendChart"></canvas>
+                <div class="card">
+                    <div style="color: var(--text-muted); font-size: 0.9em; margin-bottom: 10px;">Analysis Period</div>
+                    <div id="summaryPeriod" style="font-size: 1.8em; font-weight: 700; color: var(--success);">-</div>
                 </div>
-                <div class="chart-container">
-                    <canvas id="profitabilityChart"></canvas>
+                <div class="card">
+                    <div style="color: var(--text-muted); font-size: 0.9em; margin-bottom: 10px;">Latest Year Total Assets</div>
+                    <div id="summaryAssets" style="font-size: 1.8em; font-weight: 700; color: var(--accent);">-</div>
+                </div>
+                <div class="card">
+                    <div style="color: var(--text-muted); font-size: 0.9em; margin-bottom: 10px;">Latest Year Net Income</div>
+                    <div id="summaryIncome" style="font-size: 1.8em; font-weight: 700; color: var(--secondary);">-</div>
                 </div>
             </div>
 
-            <!-- Ratios Section -->
-            <div style="margin-bottom: 30px;">
-                <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 15px;">📊 Financial Ratios</h3>
-                <div id="ratiosDisplay"></div>
+            <!-- FINANCIAL RATIOS -->
+            <div class="card section">
+                <div class="card-title">📊 Financial Ratios Analysis</div>
+
+                <div class="tabs">
+                    <button class="tab-btn active" onclick="switchTab('liquidity-ratios')">Liquidity</button>
+                    <button class="tab-btn" onclick="switchTab('profitability-ratios')">Profitability</button>
+                    <button class="tab-btn" onclick="switchTab('solvency-ratios')">Solvency</button>
+                    <button class="tab-btn" onclick="switchTab('efficiency-ratios')">Efficiency</button>
+                </div>
+
+                <!-- LIQUIDITY RATIOS -->
+                <div id="liquidity-ratios" class="tab-content active">
+                    <div class="ratio-grid">
+                        <div class="ratio-card">
+                            <div class="ratio-label">Current Ratio</div>
+                            <div class="ratio-value" id="currentRatio">-</div>
+                            <div class="ratio-change" id="currentRatioChange"></div>
+                        </div>
+                        <div class="ratio-card">
+                            <div class="ratio-label">Quick Ratio</div>
+                            <div class="ratio-value" id="quickRatio">-</div>
+                            <div class="ratio-change" id="quickRatioChange"></div>
+                        </div>
+                        <div class="ratio-card">
+                            <div class="ratio-label">Cash Ratio</div>
+                            <div class="ratio-value" id="cashRatio">-</div>
+                            <div class="ratio-change" id="cashRatioChange"></div>
+                        </div>
+                    </div>
+                    <p style="color: var(--text-muted); font-size: 0.9em; margin-top: 15px;">
+                        <strong>Liquidity Ratios</strong> measure the company's ability to pay short-term obligations.
+                    </p>
+                </div>
+
+                <!-- PROFITABILITY RATIOS -->
+                <div id="profitability-ratios" class="tab-content">
+                    <div class="ratio-grid">
+                        <div class="ratio-card">
+                            <div class="ratio-label">Net Profit Margin</div>
+                            <div class="ratio-value" id="netMargin">-</div>
+                            <div class="ratio-change" id="netMarginChange"></div>
+                        </div>
+                        <div class="ratio-card">
+                            <div class="ratio-label">Gross Profit Margin</div>
+                            <div class="ratio-value" id="grossMargin">-</div>
+                            <div class="ratio-change" id="grossMarginChange"></div>
+                        </div>
+                        <div class="ratio-card">
+                            <div class="ratio-label">ROE (%)</div>
+                            <div class="ratio-value" id="roe">-</div>
+                            <div class="ratio-change" id="roeChange"></div>
+                        </div>
+                        <div class="ratio-card">
+                            <div class="ratio-label">ROA (%)</div>
+                            <div class="ratio-value" id="roa">-</div>
+                            <div class="ratio-change" id="roaChange"></div>
+                        </div>
+                    </div>
+                    <p style="color: var(--text-muted); font-size: 0.9em; margin-top: 15px;">
+                        <strong>Profitability Ratios</strong> show how efficiently the company generates profits.
+                    </p>
+                </div>
+
+                <!-- SOLVENCY RATIOS -->
+                <div id="solvency-ratios" class="tab-content">
+                    <div class="ratio-grid">
+                        <div class="ratio-card">
+                            <div class="ratio-label">Debt-to-Equity</div>
+                            <div class="ratio-value" id="debtToEquity">-</div>
+                            <div class="ratio-change" id="debtToEquityChange"></div>
+                        </div>
+                        <div class="ratio-card">
+                            <div class="ratio-label">Debt Ratio</div>
+                            <div class="ratio-value" id="debtRatio">-</div>
+                            <div class="ratio-change" id="debtRatioChange"></div>
+                        </div>
+                        <div class="ratio-card">
+                            <div class="ratio-label">Equity Ratio</div>
+                            <div class="ratio-value" id="equityRatio">-</div>
+                            <div class="ratio-change" id="equityRatioChange"></div>
+                        </div>
+                    </div>
+                    <p style="color: var(--text-muted); font-size: 0.9em; margin-top: 15px;">
+                        <strong>Solvency Ratios</strong> measure the company's ability to meet long-term obligations.
+                    </p>
+                </div>
+
+                <!-- EFFICIENCY RATIOS -->
+                <div id="efficiency-ratios" class="tab-content">
+                    <div class="ratio-grid">
+                        <div class="ratio-card">
+                            <div class="ratio-label">Asset Turnover</div>
+                            <div class="ratio-value" id="assetTurnover">-</div>
+                            <div class="ratio-change" id="assetTurnoverChange"></div>
+                        </div>
+                        <div class="ratio-card">
+                            <div class="ratio-label">Receivables Turnover</div>
+                            <div class="ratio-value" id="receivablesTurnover">-</div>
+                            <div class="ratio-change" id="receivablesTurnoverChange"></div>
+                        </div>
+                        <div class="ratio-card">
+                            <div class="ratio-label">Inventory Turnover</div>
+                            <div class="ratio-value" id="inventoryTurnover">-</div>
+                            <div class="ratio-change" id="inventoryTurnoverChange"></div>
+                        </div>
+                    </div>
+                    <p style="color: var(--text-muted); font-size: 0.9em; margin-top: 15px;">
+                        <strong>Efficiency Ratios</strong> measure how well the company uses its assets.
+                    </p>
+                </div>
             </div>
 
-            <!-- Trend Analysis Section -->
-            <div style="margin-bottom: 30px;">
-                <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 15px;">📉 Trend Analysis</h3>
-                <div id="trendAnalysis"></div>
-            </div>
-
-            <!-- AI Insights Section -->
-            <div style="margin-bottom: 30px;">
-                <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 15px;">🤖 AI-Powered Insights</h3>
+            <!-- DETAILED DATA TABLE -->
+            <div class="card section">
+                <div class="card-title">📋 Detailed Financial Data</div>
                 
-                <div style="margin-bottom: 16px;">
-                    <label style="margin-bottom: 8px;">AI Provider (Optional)</label>
-                    <select id="aiProvider">
-                        <option value="none">No API Key (Built-in Analysis)</option>
-                        <option value="openai">OpenAI (GPT-4)</option>
-                        <option value="grok">Grok / xAI</option>
-                        <option value="claude">Claude (Anthropic)</option>
+                <div class="tabs">
+                    <button class="tab-btn active" onclick="switchTab('income-table')">Income Statement</button>
+                    <button class="tab-btn" onclick="switchTab('balance-table')">Balance Sheet</button>
+                    <button class="tab-btn" onclick="switchTab('cash-table')">Cash Flow</button>
+                </div>
+
+                <!-- INCOME STATEMENT TABLE -->
+                <div id="income-table" class="tab-content active">
+                    <div class="table-responsive">
+                        <table id="incomeTable">
+                            <thead>
+                                <tr>
+                                    <th>Metric</th>
+                                    <th class="text-right">Year 1</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td colspan="2" style="text-align: center; color: var(--text-muted);">No data available</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- BALANCE SHEET TABLE -->
+                <div id="balance-table" class="tab-content">
+                    <div class="table-responsive">
+                        <table id="balanceTable">
+                            <thead>
+                                <tr>
+                                    <th>Metric</th>
+                                    <th class="text-right">Year 1</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td colspan="2" style="text-align: center; color: var(--text-muted);">No data available</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- CASH FLOW TABLE -->
+                <div id="cash-table" class="tab-content">
+                    <div class="table-responsive">
+                        <table id="cashTable">
+                            <thead>
+                                <tr>
+                                    <th>Metric</th>
+                                    <th class="text-right">Year 1</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td colspan="2" style="text-align: center; color: var(--text-muted);">No data available</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CHARTS -->
+            <div class="grid section">
+                <div class="card">
+                    <div class="card-title">📈 Revenue & Net Income Trend</div>
+                    <div class="chart-container">
+                        <canvas id="trendChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">💰 Profitability Metrics</div>
+                    <div class="chart-container">
+                        <canvas id="profitabilityChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">⚖️ Capital Structure</div>
+                    <div class="chart-container">
+                        <canvas id="capitalChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">📊 Liquidity Ratios</div>
+                    <div class="chart-container">
+                        <canvas id="liquidityChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI INSIGHTS -->
+            <div class="card section">
+                <div class="card-title">🤖 AI-Powered Financial Insights</div>
+                
+                <div class="form-group">
+                    <label for="aiApiKey">AI API Key (Optional for Enhanced Analysis)</label>
+                    <input type="password" id="aiApiKey" placeholder="Leave blank for basic analysis or enter OpenAI/Grok API key">
+                    <p style="font-size: 0.8em; color: var(--text-muted); margin-top: 8px;">
+                        💡 Tip: Your API key is stored only in your browser. Never shared or logged. For free basic analysis, leave this blank.
+                    </p>
+                </div>
+
+                <div class="form-group">
+                    <label for="aiModel">AI Model</label>
+                    <select id="aiModel">
+                        <option value="basic">Basic Analysis (Free, No API Key)</option>
+                        <option value="openai/gpt-4-mini">OpenAI GPT-4 Mini</option>
+                        <option value="openai/gpt-3.5-turbo">OpenAI GPT-3.5 Turbo</option>
+                        <option value="custom">Custom API Endpoint</option>
                     </select>
                 </div>
 
-                <div id="apiKeyInput" style="display: none; margin-bottom: 16px;">
-                    <label style="margin-bottom: 8px;">Enter Your API Key</label>
-                    <input type="password" id="apiKey" placeholder="Your API key (stored locally only)">
-                    <small style="color: var(--text-light); margin-top: 8px; display: block;">🔒 Your API key is stored in your browser only, never sent to our servers.</small>
+                <button class="btn btn-primary" onclick="generateAIInsights()" style="margin-top: 15px;">
+                    ✨ Generate AI Insights
+                </button>
+
+                <div id="aiInsightsContainer" class="hidden" style="margin-top: 20px;">
+                    <div class="ai-insights">
+                        <h3>💡 Analysis & Recommendations</h3>
+                        <div class="ai-insights-content" id="aiInsightsContent">
+                            Loading insights...
+                        </div>
+                    </div>
                 </div>
 
-                <button class="btn-primary" id="insightBtn" onclick="generateInsights()">Generate Insights</button>
-                <div id="insightsDisplay" style="margin-top: 20px;"></div>
+                <div id="aiError" class="hidden alert alert-error" style="margin-top: 20px;"></div>
             </div>
 
-            <!-- Export Section -->
-            <div style="margin-bottom: 30px;">
-                <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 15px;">💾 Export Report</h3>
-                <div class="export-buttons">
-                    <button class="btn-secondary btn-small" onclick="exportJSON()">📥 JSON</button>
-                    <button class="btn-secondary btn-small" onclick="exportCSV()">📊 CSV</button>
-                    <button class="btn-secondary btn-small" onclick="window.print()">🖨️ Print</button>
+            <!-- EXPORT OPTIONS -->
+            <div class="card section">
+                <div class="card-title">💾 Export Results</div>
+                <div class="export-section">
+                    <button class="btn btn-secondary" onclick="exportJSON()">📥 Export as JSON</button>
+                    <button class="btn btn-secondary" onclick="exportCSV()">📊 Export as CSV</button>
+                    <button class="btn btn-secondary" onclick="window.print()">🖨️ Print Report</button>
                 </div>
             </div>
         </div>
-
-        <!-- Footer -->
-        <footer style="text-align: center; margin-top: 40px; padding-bottom: 20px; color: var(--text-light); font-size: 13px;">
-            <p>💡 Financial Analyzer v1.0 | 100% Client-Side | No Data Stored</p>
-            <p style="margin-top: 8px;">For privacy concerns: All analysis happens in your browser. Files are never uploaded to any server.</p>
-        </footer>
     </div>
 
     <script>
-        // ============================================================================
+        // ============================================
         // GLOBAL STATE MANAGEMENT
-        // ============================================================================
+        // ============================================
         let appState = {
-            analysisPeriod: 3,
+            analysisYears: 1,
             companyName: '',
-            files: [],
-            parsedData: {},
-            manualData: {},
-            financialData: {},
-            ratios: {},
-            trends: {},
-            selectedYears: [],
-            charts: {}
+            currency: 'Rs.',
+            financialData: {
+                income: {},
+                balance: {},
+                cashFlow: {}
+            },
+            years: [],
+            ratios: {}
         };
 
-        // ============================================================================
-        // PERIOD SELECTION
-        // ============================================================================
-        function setPeriod(period) {
-            appState.analysisPeriod = period;
-            document.getElementById('analysisPeriod').value = period;
-            
-            document.querySelectorAll('.period-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
+        let chartInstances = {};
 
-            console.log('[v0] Analysis period set to:', period, 'years');
+        // ============================================
+        // INITIALIZATION
+        // ============================================
+        document.addEventListener('DOMContentLoaded', () => {
+            initializePeriodButtons();
+            initializeFileUpload();
+            createDataInputFields();
+        });
+
+        function initializePeriodButtons() {
+            document.querySelectorAll('.period-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+                    e.target.classList.add('active');
+                    appState.analysisYears = parseInt(e.target.dataset.years);
+                    createDataInputFields();
+                });
+            });
         }
 
-        // ============================================================================
-        // FILE UPLOAD & PARSING
-        // ============================================================================
-        function handleFileUpload(event) {
-            appState.files = Array.from(event.target.files);
-            const status = document.getElementById('uploadStatus');
+        function createDataInputFields() {
+            const years = appState.analysisYears;
+            const yearLabels = [];
             
-            if (appState.files.length > 0) {
-                status.className = 'alert alert-success';
-                status.innerHTML = `✓ ${appState.files.length} file(s) selected: ${appState.files.map(f => f.name).join(', ')}`;
+            for (let i = years; i >= 1; i--) {
+                yearLabels.push(`Year ${i}`);
+            }
+
+            // Create input fields for each year
+            ['revenueInputs', 'netIncomeInputs', 'expensesInputs', 
+             'assetsInputs', 'liabilitiesInputs', 'equityInputs', 
+             'currentAssetsInputs', 'currentLiabilitiesInputs',
+             'ocfInputs', 'fcfInputs', 'capexInputs'].forEach(id => {
+                const container = document.getElementById(id);
+                container.innerHTML = yearLabels.map((year, idx) => `
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                        <div style="grid-column: 1 / -1; font-weight: 600; color: var(--text-muted); font-size: 0.85em;">${year}</div>
+                        <input type="number" placeholder="Enter amount" data-year="${idx + 1}" data-field="${id}" class="year-input">
+                    </div>
+                `).join('');
+            });
+
+            // Update analysis period text
+            if (years === 1) {
+                document.getElementById('analysisPeriodText').value = 'Latest Year';
             } else {
-                status.className = 'hide';
+                document.getElementById('analysisPeriodText').value = `Last ${years} Years`;
             }
         }
 
-        async function parseFiles() {
-            const status = document.getElementById('uploadStatus');
-            const companyName = document.getElementById('companyName').value.trim();
+        // ============================================
+        // FILE UPLOAD & PARSING
+        // ============================================
+        function initializeFileUpload() {
+            const fileInput = document.getElementById('fileInput');
+            fileInput.addEventListener('change', handleFileUpload);
+        }
 
-            if (!companyName) {
-                status.className = 'alert alert-danger';
-                status.textContent = '❌ Please enter company name';
-                return;
-            }
+        async function handleFileUpload(e) {
+            const files = Array.from(e.target.files);
+            console.log("[v0] Files selected:", files.length);
 
-            if (appState.files.length === 0) {
-                status.className = 'alert alert-warning';
-                status.textContent = '⚠️ No files selected. You can manually enter data instead.';
-                return;
-            }
+            if (files.length === 0) return;
 
-            appState.companyName = companyName;
-            status.className = 'alert alert-info';
-            status.innerHTML = '<div class="insights-loading"><div class="spinner"></div> Parsing files...</div>';
+            const statusDiv = document.getElementById('uploadStatus');
+            statusDiv.classList.remove('hidden');
+            statusDiv.innerHTML = '<div class="alert alert-info"><span class="spinner"></span> Parsing files...</div>';
 
             try {
-                for (const file of appState.files) {
+                for (const file of files) {
+                    console.log("[v0] Processing file:", file.name, file.type);
+                    
                     if (file.type === 'application/pdf') {
                         await parsePDF(file);
-                    } else if (file.type === 'text/csv') {
+                    } else if (file.type === 'text/csv' || file.name.endsWith('.csv')) {
                         parseCSV(file);
-                    } else if (file.type.includes('sheet') || file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
+                    } else if (file.type.includes('spreadsheet') || file.name.match(/\.xlsx?$/)) {
                         parseExcel(file);
                     }
                 }
 
-                status.className = 'alert alert-success';
-                status.innerHTML = '✓ Files parsed successfully!<br><small>Review extracted data in the "Auto-Parsed Data" tab below</small>';
-                displayParsedData();
+                statusDiv.innerHTML = '<div class="alert alert-success">✓ Files parsed successfully! Auto-extracted financial data.</div>';
+                document.getElementById('parsedDataSummary').classList.remove('hidden');
             } catch (error) {
-                console.error('[v0] Parsing error:', error);
-                status.className = 'alert alert-warning';
-                status.innerHTML = `⚠️ Partial parsing successful. Review data below and fill gaps manually if needed.`;
-                displayParsedData();
+                console.error("[v0] File parsing error:", error);
+                statusDiv.innerHTML = `<div class="alert alert-error">✗ Error parsing file. Please check format or manually enter data.</div>`;
             }
         }
 
-        // PDF.js Parser
+        // ============================================
+        // PDF PARSING
+        // ============================================
         async function parsePDF(file) {
             const arrayBuffer = await file.arrayBuffer();
             const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-            
-            let allText = '';
-            for (let i = 1; i <= Math.min(pdf.numPages, 10); i++) {
+
+            console.log("[v0] PDF loaded with", pdf.numPages, "pages");
+
+            let fullText = '';
+            for (let i = 1; i <= pdf.numPages; i++) {
                 const page = await pdf.getPage(i);
                 const textContent = await page.getTextContent();
-                allText += textContent.items.map(item => item.str).join(' ') + ' ';
+                fullText += textContent.items.map(item => item.str).join(' ') + '\n';
             }
 
-            extractFinancialDataFromText(allText, file.name);
+            extractFinancialDataFromText(fullText, file.name);
         }
 
-        // CSV Parser
+        // ============================================
+        // CSV PARSING
+        // ============================================
         function parseCSV(file) {
             const reader = new FileReader();
             reader.onload = (e) => {
-                Papa.parse(e.target.result, {
+                const text = e.target.result;
+                Papa.parse(text, {
                     header: true,
                     complete: (results) => {
-                        extractFinancialDataFromTable(results.data, file.name);
+                        console.log("[v0] CSV parsed:", results.data.length, "rows");
+                        extractFinancialDataFromTable(results.data);
                     }
                 });
             };
             reader.readAsText(file);
         }
 
-        // Excel Parser
+        // ============================================
+        // EXCEL PARSING
+        // ============================================
         function parseExcel(file) {
             const reader = new FileReader();
             reader.onload = (e) => {
-                const workbook = XLSX.read(e.target.result, { type: 'binary' });
-                const sheet = workbook.Sheets[workbook.SheetNames[0]];
-                const data = XLSX.utils.sheet_to_json(sheet);
-                extractFinancialDataFromTable(data, file.name);
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                console.log("[v0] Excel parsed, sheets:", workbook.SheetNames);
+
+                workbook.SheetNames.forEach(sheetName => {
+                    const sheet = workbook.Sheets[sheetName];
+                    const rows = XLSX.utils.sheet_to_json(sheet);
+                    console.log("[v0] Sheet", sheetName, "has", rows.length, "rows");
+                    extractFinancialDataFromTable(rows, sheetName);
+                });
             };
-            reader.readAsBinaryString(file);
+            reader.readAsArrayBuffer(file);
         }
 
-        // Extract Financial Data from Text (PDF)
+        // ============================================
+        // DATA EXTRACTION FROM TEXT (PDF)
+        // ============================================
         function extractFinancialDataFromText(text, fileName) {
-            const keywords = {
-                revenue: ['revenue', 'sales', 'net sales', 'operating revenue'],
-                netIncome: ['net income', 'net profit', 'earnings', 'bottom line'],
-                totalAssets: ['total assets', 'assets'],
-                totalLiabilities: ['total liabilities', 'liabilities'],
-                currentAssets: ['current assets', 'working capital'],
-                currentLiabilities: ['current liabilities'],
-                equity: ['shareholders equity', 'total equity', 'equity'],
-                operatingCashFlow: ['operating cash flow', 'cash from operations'],
-                ebitda: ['ebitda', 'operating income'],
-                costOfRevenue: ['cost of revenue', 'cost of goods sold', 'cogs']
+            console.log("[v0] Extracting data from:", fileName);
+
+            // Helper function to extract number
+            const extractNumber = (pattern) => {
+                const match = text.match(pattern);
+                if (match) {
+                    const num = parseFloat(match[1].replace(/,/g, ''));
+                    return isNaN(num) ? 0 : num;
+                }
+                return 0;
             };
 
-            const lowerText = text.toLowerCase();
-            const extractedYear = {};
+            // Detect if it's Balance Sheet or Income Statement
+            const isBalanceSheet = /balance\s+sheet|financial\s+position|assets|liabilities|equity/i.test(text);
+            const isIncomeStatement = /income\s+statement|revenue|net\s+income|profit|expenses/i.test(text);
 
-            // Try to extract numbers near keywords
-            for (const [key, keywordList] of Object.entries(keywords)) {
-                for (const keyword of keywordList) {
-                    const regex = new RegExp(`${keyword}[^0-9]*([0-9,]+\\.?[0-9]*)`, 'gi');
-                    const match = regex.exec(lowerText);
-                    if (match) {
-                        const value = parseFloat(match[1].replace(/,/g, ''));
-                        if (value > 0) {
-                            extractedYear[key] = value;
-                            break;
-                        }
-                    }
-                }
+            if (isBalanceSheet) {
+                console.log("[v0] Detected: Balance Sheet");
+                
+                // Extract key balance sheet items
+                const totalAssets = extractNumber(/total\s+assets[:\s]+Rs\.\s+['\s]*(\d+,?\d*)/i) ||
+                                  extractNumber(/total\s+assets[:\s]+(\d+,?\d*)/i);
+                
+                const totalLiabilities = extractNumber(/total\s+liabilities[:\s]+Rs\.\s+['\s]*(\d+,?\d*)/i) ||
+                                        extractNumber(/total\s+liabilities[:\s]+(\d+,?\d*)/i);
+                
+                const totalEquity = extractNumber(/total\s+equity[:\s]+Rs\.\s+['\s]*(\d+,?\d*)/i) ||
+                                   extractNumber(/total\s+equity[:\s]+(\d+,?\d*)/i);
+
+                const currentAssets = extractNumber(/current\s+assets[:\s]+Rs\.\s+['\s]*(\d+,?\d*)/i) ||
+                                     extractNumber(/current\s+assets[:\s]+(\d+,?\d*)/i);
+
+                const currentLiabilities = extractNumber(/current\s+liabilities[:\s]+Rs\.\s+['\s]*(\d+,?\d*)/i) ||
+                                          extractNumber(/current\s+liabilities[:\s]+(\d+,?\d*)/i);
+
+                console.log("[v0] Extracted Balance Sheet:", {
+                    totalAssets, totalLiabilities, totalEquity, currentAssets, currentLiabilities
+                });
+
+                // Auto-fill the form
+                const assetsInput = document.querySelector('input[data-field="assetsInputs"][data-year="1"]');
+                const liabilitiesInput = document.querySelector('input[data-field="liabilitiesInputs"][data-year="1"]');
+                const equityInput = document.querySelector('input[data-field="equityInputs"][data-year="1"]');
+                const currentAssetsInput = document.querySelector('input[data-field="currentAssetsInputs"][data-year="1"]');
+                const currentLiabilitiesInput = document.querySelector('input[data-field="currentLiabilitiesInputs"][data-year="1"]');
+
+                if (assetsInput && totalAssets > 0) assetsInput.value = Math.round(totalAssets / 1000);
+                if (liabilitiesInput && totalLiabilities > 0) liabilitiesInput.value = Math.round(totalLiabilities / 1000);
+                if (equityInput && totalEquity > 0) equityInput.value = Math.round(totalEquity / 1000);
+                if (currentAssetsInput && currentAssets > 0) currentAssetsInput.value = Math.round(currentAssets / 1000);
+                if (currentLiabilitiesInput && currentLiabilities > 0) currentLiabilitiesInput.value = Math.round(currentLiabilities / 1000);
             }
 
-            if (Object.keys(extractedYear).length > 0) {
-                const year = new Date().getFullYear();
-                appState.parsedData[year] = extractedYear;
+            if (isIncomeStatement) {
+                console.log("[v0] Detected: Income Statement");
+                
+                // Extract key income statement items
+                const revenue = extractNumber(/(?:gross\s+)?written\s+premium|revenue|total\s+revenue[:\s]+Rs\.\s+['\s]*(\d+,?\d*)/i) ||
+                               extractNumber(/(?:gross\s+)?written\s+premium|revenue|total\s+revenue[:\s]+(\d+,?\d*)/i);
+                
+                const netIncome = extractNumber(/profit\s+for\s+the\s+year|net\s+income[:\s]+Rs\.\s+['\s]*(\d+,?\d*)/i) ||
+                                 extractNumber(/profit\s+for\s+the\s+year|net\s+income[:\s]+(\d+,?\d*)/i);
+                
+                const expenses = extractNumber(/total\s+benefits|total\s+expenses[:\s]+Rs\.\s+['\s]*(\d+,?\d*)/i) ||
+                                extractNumber(/total\s+benefits|total\s+expenses[:\s]+(\d+,?\d*)/i);
+
+                console.log("[v0] Extracted Income Statement:", {
+                    revenue, netIncome, expenses
+                });
+
+                // Auto-fill the form
+                const revenueInput = document.querySelector('input[data-field="revenueInputs"][data-year="1"]');
+                const netIncomeInput = document.querySelector('input[data-field="netIncomeInputs"][data-year="1"]');
+                const expensesInput = document.querySelector('input[data-field="expensesInputs"][data-year="1"]');
+
+                if (revenueInput && revenue > 0) revenueInput.value = Math.round(revenue / 1000);
+                if (netIncomeInput && netIncome > 0) netIncomeInput.value = Math.round(netIncome / 1000);
+                if (expensesInput && expenses > 0) expensesInput.value = Math.round(expenses / 1000);
             }
         }
 
-        // Extract Financial Data from Tables (CSV/Excel)
-        function extractFinancialDataFromTable(data, fileName) {
-            const keywordMapping = {
-                revenue: ['revenue', 'sales', 'net sales'],
-                netIncome: ['net income', 'net profit', 'earnings'],
-                totalAssets: ['total assets', 'assets'],
-                totalLiabilities: ['total liabilities', 'liabilities'],
-                currentAssets: ['current assets'],
-                currentLiabilities: ['current liabilities'],
-                equity: ['equity', 'shareholders equity'],
-                operatingCashFlow: ['operating cash flow', 'cash flow'],
-                ebitda: ['ebitda', 'operating income'],
-                costOfRevenue: ['cost of revenue', 'cogs', 'cost of goods']
-            };
+        // ============================================
+        // DATA EXTRACTION FROM TABLE (CSV/EXCEL)
+        // ============================================
+        function extractFinancialDataFromTable(rows, source = 'unknown') {
+            console.log("[v0] Extracting from table source:", source);
 
-            data.forEach((row, index) => {
-                const extractedData = {};
-                const year = 2024 - index;
+            rows.forEach((row, idx) => {
+                const rowStr = JSON.stringify(row).toLowerCase();
 
-                Object.entries(row).forEach(([header, value]) => {
-                    const lowerHeader = header.toLowerCase();
-                    for (const [key, keywords] of Object.entries(keywordMapping)) {
-                        if (keywords.some(kw => lowerHeader.includes(kw))) {
-                            const numValue = parseFloat(String(value).replace(/[^0-9.-]/g, ''));
-                            if (!isNaN(numValue) && numValue !== 0) {
-                                extractedData[key] = Math.abs(numValue);
+                // Map row data to form fields
+                const fieldMappings = {
+                    'revenueInputs': ['revenue', 'gross written premium', 'total revenue', 'sales'],
+                    'netIncomeInputs': ['net income', 'profit for the year', 'net profit', 'earnings'],
+                    'expensesInputs': ['expenses', 'operating expenses', 'total expenses', 'costs'],
+                    'assetsInputs': ['total assets', 'assets'],
+                    'liabilitiesInputs': ['total liabilities', 'liabilities'],
+                    'equityInputs': ['total equity', 'equity', 'shareholders equity'],
+                    'currentAssetsInputs': ['current assets'],
+                    'currentLiabilitiesInputs': ['current liabilities']
+                };
+
+                Object.entries(fieldMappings).forEach(([field, keywords]) => {
+                    const match = keywords.some(kw => rowStr.includes(kw));
+                    if (match) {
+                        const values = Object.values(row).filter(v => !isNaN(v) && v !== '');
+                        if (values.length > 0) {
+                            const input = document.querySelector(`input[data-field="${field}"][data-year="1"]`);
+                            if (input) {
+                                const num = parseFloat(values[0]);
+                                input.value = Math.round(num / 1000) || num;
+                                console.log("[v0] Filled", field, "with", input.value);
                             }
                         }
                     }
                 });
-
-                if (Object.keys(extractedData).length > 0) {
-                    appState.parsedData[year] = extractedData;
-                }
             });
         }
 
-        // Display Parsed Data
-        function displayParsedData() {
-            const display = document.getElementById('parsedDataDisplay');
-            
-            if (Object.keys(appState.parsedData).length === 0) {
-                display.innerHTML = `
-                    <div class="alert alert-info">
-                        ℹ️ No financial data extracted from files. This is normal for complex PDFs. 
-                        You can manually enter data in the "✏️ Manual Entry" tab.
-                    </div>
-                `;
-                return;
-            }
-
-            let html = `<div style="margin-bottom: 16px;">
-                <strong>Extracted Data:</strong>
-                <button class="btn-secondary btn-small" onclick="clearParsedData()" style="float: right;">Clear</button>
-            </div>`;
-
-            for (const [year, data] of Object.entries(appState.parsedData)) {
-                html += `
-                    <div style="background: var(--bg); padding: 12px; border-radius: 8px; margin-bottom: 12px;">
-                        <strong>${year}</strong>
-                        <div style="font-size: 13px; color: var(--text-light); margin-top: 8px;">
-                            ${Object.entries(data).map(([key, value]) => 
-                                `${key}: $${(value / 1000000).toFixed(1)}M`
-                            ).join('<br>')}
-                        </div>
-                    </div>
-                `;
-            }
-
-            display.innerHTML = html;
-            generateManualDataForm();
-        }
-
-        function clearParsedData() {
-            appState.parsedData = {};
-            document.getElementById('parsedDataDisplay').innerHTML = '';
-        }
-
-        // ============================================================================
-        // MANUAL DATA ENTRY
-        // ============================================================================
-        function generateManualDataForm() {
-            const form = document.getElementById('manualDataForm');
-            const period = appState.analysisPeriod;
-            const startYear = new Date().getFullYear();
-            
-            let html = '';
-            for (let i = 0; i < period; i++) {
-                const year = startYear - i;
-                html += generateYearForm(year);
-            }
-
-            form.innerHTML = html;
-        }
-
-        function generateYearForm(year) {
-            const fields = [
-                { label: 'Revenue', id: 'revenue', placeholder: 'e.g., 100000000' },
-                { label: 'Net Income', id: 'netIncome', placeholder: 'e.g., 20000000' },
-                { label: 'Total Assets', id: 'totalAssets', placeholder: 'e.g., 500000000' },
-                { label: 'Total Liabilities', id: 'totalLiabilities', placeholder: 'e.g., 200000000' },
-                { label: 'Current Assets', id: 'currentAssets', placeholder: 'e.g., 100000000' },
-                { label: 'Current Liabilities', id: 'currentLiabilities', placeholder: 'e.g., 50000000' },
-                { label: 'Shareholders Equity', id: 'equity', placeholder: 'e.g., 300000000' },
-                { label: 'Operating Cash Flow', id: 'operatingCashFlow', placeholder: 'e.g., 50000000' },
-                { label: 'EBITDA', id: 'ebitda', placeholder: 'e.g., 40000000' },
-                { label: 'Cost of Revenue', id: 'costOfRevenue', placeholder: 'e.g., 60000000' }
-            ];
-
-            let html = `
-                <div style="background: var(--bg); padding: 16px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid var(--accent);">
-                    <h4 style="margin-bottom: 14px; color: var(--primary);">${year}</h4>
-                    <div class="data-grid">
-            `;
-
-            fields.forEach(field => {
-                const value = appState.parsedData[year]?.[field.id] || '';
-                html += `
-                    <div class="data-input">
-                        <label style="font-size: 12px; color: var(--text-light);">${field.label}</label>
-                        <input 
-                            type="number" 
-                            id="year-${year}-${field.id}"
-                            value="${value}"
-                            placeholder="${field.placeholder}"
-                            onchange="updateManualData(${year}, '${field.id}', this.value)"
-                        >
-                    </div>
-                `;
+        // ============================================
+        // TAB SWITCHING
+        // ============================================
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
             });
 
-            html += `</div></div>`;
-            return html;
-        }
-
-        function updateManualData(year, field, value) {
-            if (!appState.manualData[year]) {
-                appState.manualData[year] = {};
-            }
-            appState.manualData[year][field] = value ? parseFloat(value) : null;
-        }
-
-        function addManualDataYear() {
-            const years = Object.keys(appState.manualData).map(Number);
-            const newYear = years.length > 0 ? Math.min(...years) - 1 : new Date().getFullYear() - appState.analysisPeriod;
-            
-            const form = document.getElementById('manualDataForm');
-            form.innerHTML += generateYearForm(newYear);
-        }
-
-        // ============================================================================
-        // ANALYSIS
-        // ============================================================================
-        function proceedToAnalysis() {
-            // Merge parsed and manual data
-            appState.financialData = { ...appState.parsedData };
-            
-            for (const [year, data] of Object.entries(appState.manualData)) {
-                if (!appState.financialData[year]) {
-                    appState.financialData[year] = {};
-                }
-                Object.assign(appState.financialData[year], data);
-            }
-
-            if (Object.keys(appState.financialData).length === 0) {
-                alert('❌ Please enter financial data before proceeding');
-                return;
-            }
-
-            // Calculate ratios and trends
-            calculateAllRatios();
-            calculateTrends();
-            appState.selectedYears = Object.keys(appState.financialData).sort().slice(-Math.min(appState.analysisPeriod, 5));
-
-            // Display analysis
-            document.getElementById('analysisCard').style.display = 'block';
-            displayYearSelection();
-            displayRatios();
-            displayTrendAnalysis();
-            createCharts();
-
-            // Scroll to results
-            document.getElementById('analysisCard').scrollIntoView({ behavior: 'smooth' });
-        }
-
-        // ============================================================================
-        // RATIO CALCULATIONS
-        // ============================================================================
-        function calculateAllRatios() {
-            appState.ratios = {};
-
-            for (const [year, data] of Object.entries(appState.financialData)) {
-                appState.ratios[year] = {
-                    // Liquidity Ratios
-                    currentRatio: data.currentAssets && data.currentLiabilities ? 
-                        (data.currentAssets / data.currentLiabilities).toFixed(2) : 'N/A',
-                    quickRatio: data.currentAssets && data.currentLiabilities ? 
-                        ((data.currentAssets - (data.totalAssets * 0.2)) / data.currentLiabilities).toFixed(2) : 'N/A',
-                    
-                    // Profitability Ratios
-                    netProfitMargin: data.revenue && data.netIncome ? 
-                        ((data.netIncome / data.revenue) * 100).toFixed(2) : 'N/A',
-                    roe: data.equity && data.netIncome ? 
-                        ((data.netIncome / data.equity) * 100).toFixed(2) : 'N/A',
-                    roa: data.totalAssets && data.netIncome ? 
-                        ((data.netIncome / data.totalAssets) * 100).toFixed(2) : 'N/A',
-                    
-                    // Solvency Ratios
-                    debtToEquity: data.totalLiabilities && data.equity ? 
-                        (data.totalLiabilities / data.equity).toFixed(2) : 'N/A',
-                    debtRatio: data.totalLiabilities && data.totalAssets ? 
-                        ((data.totalLiabilities / data.totalAssets) * 100).toFixed(2) : 'N/A',
-                    
-                    // Efficiency Ratios
-                    assetTurnover: data.totalAssets && data.revenue ? 
-                        (data.revenue / data.totalAssets).toFixed(2) : 'N/A',
-                    
-                    // Other
-                    operatingMargin: data.revenue && data.ebitda ? 
-                        ((data.ebitda / data.revenue) * 100).toFixed(2) : 'N/A',
-                    grossMargin: data.revenue && data.costOfRevenue ? 
-                        (((data.revenue - data.costOfRevenue) / data.revenue) * 100).toFixed(2) : 'N/A'
-                };
-            }
-        }
-
-        function calculateTrends() {
-            appState.trends = {};
-            const years = Object.keys(appState.financialData).sort();
-
-            if (years.length < 2) {
-                appState.trends = { note: 'Need at least 2 years for trend analysis' };
-                return;
-            }
-
-            const latestYear = years[years.length - 1];
-            const previousYear = years[years.length - 2];
-
-            const latest = appState.ratios[latestYear];
-            const previous = appState.ratios[previousYear];
-
-            for (const ratio in latest) {
-                if (typeof latest[ratio] === 'number' && typeof previous[ratio] === 'number') {
-                    const change = ((latest[ratio] - previous[ratio]) / previous[ratio] * 100).toFixed(2);
-                    appState.trends[ratio] = change;
-                }
-            }
-        }
-
-        // ============================================================================
-        // DISPLAY RESULTS
-        // ============================================================================
-        function displayYearSelection() {
-            const container = document.getElementById('yearSelection');
-            const years = Object.keys(appState.financialData).sort();
-
-            container.innerHTML = years.map(year => `
-                <button 
-                    class="period-btn ${appState.selectedYears.includes(year) ? 'active' : ''}" 
-                    onclick="toggleYear('${year}')"
-                >${year}</button>
-            `).join('');
-        }
-
-        function toggleYear(year) {
-            const index = appState.selectedYears.indexOf(year);
-            if (index > -1) {
-                appState.selectedYears.splice(index, 1);
-            } else {
-                appState.selectedYears.push(year);
-            }
-            appState.selectedYears.sort();
-
-            document.querySelectorAll('#yearSelection .period-btn').forEach(btn => {
+            // Remove active from all buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
+
+            // Show selected tab
+            const tab = document.getElementById(tabName);
+            if (tab) {
+                tab.classList.add('active');
+            }
+
+            // Mark button as active
             event.target.classList.add('active');
-
-            createCharts();
         }
 
-        function displayRatios() {
-            const container = document.getElementById('ratiosDisplay');
-            const years = Object.keys(appState.ratios).sort().reverse();
+        // ============================================
+        // FINANCIAL ANALYSIS
+        // ============================================
+        function analyzeFinancials() {
+            console.log("[v0] Starting financial analysis...");
 
-            let html = '';
-            for (const year of years) {
-                const ratios = appState.ratios[year];
-                const trend = appState.trends[year] || {};
+            // Gather data from form
+            const company = document.getElementById('companyName').value || 'Company';
+            appState.companyName = company;
+            appState.currency = document.getElementById('currency').value || 'Rs.';
 
-                html += `
-                    <div style="margin-bottom: 30px;">
-                        <h4 style="margin-bottom: 15px; color: var(--primary);">${year}</h4>
-                        <div class="ratio-grid">
-                            ${generateRatioCards(ratios, year)}
-                        </div>
-                    </div>
-                `;
+            // Extract all year data
+            const years = appState.analysisYears;
+            const incomeData = {};
+            const balanceData = {};
+            const cashData = {};
+
+            for (let year = 1; year <= years; year++) {
+                incomeData[year] = {
+                    revenue: parseFloat(document.querySelector(`input[data-field="revenueInputs"][data-year="${year}"]`)?.value) || 0,
+                    netIncome: parseFloat(document.querySelector(`input[data-field="netIncomeInputs"][data-year="${year}"]`)?.value) || 0,
+                    expenses: parseFloat(document.querySelector(`input[data-field="expensesInputs"][data-year="${year}"]`)?.value) || 0
+                };
+
+                balanceData[year] = {
+                    assets: parseFloat(document.querySelector(`input[data-field="assetsInputs"][data-year="${year}"]`)?.value) || 0,
+                    liabilities: parseFloat(document.querySelector(`input[data-field="liabilitiesInputs"][data-year="${year}"]`)?.value) || 0,
+                    equity: parseFloat(document.querySelector(`input[data-field="equityInputs"][data-year="${year}"]`)?.value) || 0,
+                    currentAssets: parseFloat(document.querySelector(`input[data-field="currentAssetsInputs"][data-year="${year}"]`)?.value) || 0,
+                    currentLiabilities: parseFloat(document.querySelector(`input[data-field="currentLiabilitiesInputs"][data-year="${year}"]`)?.value) || 0
+                };
+
+                cashData[year] = {
+                    operatingCF: parseFloat(document.querySelector(`input[data-field="ocfInputs"][data-year="${year}"]`)?.value) || 0,
+                    freeCF: parseFloat(document.querySelector(`input[data-field="fcfInputs"][data-year="${year}"]`)?.value) || 0,
+                    capex: parseFloat(document.querySelector(`input[data-field="capexInputs"][data-year="${year}"]`)?.value) || 0
+                };
             }
 
-            container.innerHTML = html;
-        }
+            console.log("[v0] Income data:", incomeData);
+            console.log("[v0] Balance data:", balanceData);
 
-        function generateRatioCards(ratios, year) {
-            const categories = {
-                'Liquidity': ['currentRatio', 'quickRatio'],
-                'Profitability': ['netProfitMargin', 'roe', 'roa'],
-                'Solvency': ['debtToEquity', 'debtRatio'],
-                'Efficiency': ['assetTurnover']
-            };
+            appState.financialData = { income: incomeData, balance: balanceData, cashFlow: cashData };
+            appState.years = Array.from({ length: years }, (_, i) => `Year ${i + 1}`);
 
-            let html = '';
-            for (const [category, fields] of Object.entries(categories)) {
-                for (const field of fields) {
-                    const value = ratios[field];
-                    if (value !== 'N/A') {
-                        const trendValue = appState.trends[field];
-                        let trendClass = 'trend-neutral';
-                        let trendIcon = '→';
-                        if (trendValue) {
-                            if ((field.includes('Margin') || field.includes('roe') || field.includes('roa') || field === 'assetTurnover') && parseFloat(trendValue) > 0) {
-                                trendClass = 'trend-up';
-                                trendIcon = '↑';
-                            } else if ((field.includes('Debt') || field.includes('Ratio')) && parseFloat(trendValue) < 0) {
-                                trendClass = 'trend-up';
-                                trendIcon = '↓';
-                            } else if (parseFloat(trendValue) < 0) {
-                                trendClass = 'trend-down';
-                                trendIcon = '↓';
-                            } else if (parseFloat(trendValue) > 0) {
-                                trendClass = 'trend-up';
-                                trendIcon = '↑';
-                            }
-                        }
-
-                        html += `
-                            <div class="ratio-card">
-                                <div class="ratio-label">${formatLabel(field)}</div>
-                                <div class="ratio-value">${value}</div>
-                                <div class="ratio-trend ${trendClass}">
-                                    ${trendValue ? `${trendIcon} ${trendValue}%` : 'No trend'}
-                                </div>
-                            </div>
-                        `;
-                    }
-                }
-            }
-
-            return html;
-        }
-
-        function formatLabel(text) {
-            return text
-                .replace(/([A-Z])/g, ' $1')
-                .replace(/^./, str => str.toUpperCase())
-                .trim();
-        }
-
-        function displayTrendAnalysis() {
-            const container = document.getElementById('trendAnalysis');
-            const years = Object.keys(appState.financialData).sort();
-
-            if (years.length < 2) {
-                container.innerHTML = '<p style="color: var(--text-light);">Need at least 2 years of data for trend analysis</p>';
+            // Validate data
+            if (Object.values(incomeData[1]).every(v => v === 0) &&
+                Object.values(balanceData[1]).every(v => v === 0)) {
+                alert('Please enter financial data before analyzing.');
                 return;
             }
 
-            let html = '<div class="table-responsive"><table>';
-            html += '<tr><th>Metric</th><th>Trend</th><th>Analysis</th></tr>';
+            // Calculate ratios
+            calculateRatios();
 
-            for (const ratio in appState.trends) {
-                const change = appState.trends[ratio];
-                if (typeof change !== 'number') continue;
+            // Display results
+            displayResults();
 
-                let status = '→ Stable';
-                let statusColor = 'var(--text-light)';
+            // Generate charts
+            generateCharts();
 
-                if (Math.abs(change) > 10) {
-                    status = change > 0 ? '↑ Improving' : '↓ Declining';
-                    statusColor = change > 0 ? 'var(--success)' : 'var(--danger)';
+            // Scroll to results
+            document.getElementById('resultsSection').classList.remove('hidden');
+            document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // ============================================
+        // RATIO CALCULATIONS
+        // ============================================
+        function calculateRatios() {
+            const latestYear = appState.analysisYears;
+            const prevYear = latestYear > 1 ? latestYear - 1 : latestYear;
+
+            const latest = {
+                income: appState.financialData.income[latestYear] || {},
+                balance: appState.financialData.balance[latestYear] || {}
+            };
+
+            const previous = {
+                income: appState.financialData.income[prevYear] || {},
+                balance: appState.financialData.balance[prevYear] || {}
+            };
+
+            const ratios = {};
+
+            // LIQUIDITY RATIOS
+            ratios.currentRatio = latest.balance.currentAssets > 0 && latest.balance.currentLiabilities > 0 
+                ? (latest.balance.currentAssets / latest.balance.currentLiabilities).toFixed(2)
+                : 'N/A';
+            
+            ratios.quickRatio = latest.balance.currentAssets > 0 && latest.balance.currentLiabilities > 0
+                ? ((latest.balance.currentAssets * 0.8) / latest.balance.currentLiabilities).toFixed(2)
+                : 'N/A';
+            
+            ratios.cashRatio = latest.balance.currentAssets > 0 && latest.balance.currentLiabilities > 0
+                ? ((latest.balance.currentAssets * 0.3) / latest.balance.currentLiabilities).toFixed(2)
+                : 'N/A';
+
+            // PROFITABILITY RATIOS
+            ratios.netMargin = latest.income.revenue > 0
+                ? ((latest.income.netIncome / latest.income.revenue) * 100).toFixed(2) + '%'
+                : 'N/A';
+            
+            ratios.grossMargin = latest.income.revenue > 0
+                ? (((latest.income.revenue - latest.income.expenses) / latest.income.revenue) * 100).toFixed(2) + '%'
+                : 'N/A';
+            
+            ratios.roe = latest.balance.equity > 0
+                ? ((latest.income.netIncome / latest.balance.equity) * 100).toFixed(2) + '%'
+                : 'N/A';
+            
+            ratios.roa = latest.balance.assets > 0
+                ? ((latest.income.netIncome / latest.balance.assets) * 100).toFixed(2) + '%'
+                : 'N/A';
+
+            // SOLVENCY RATIOS
+            ratios.debtToEquity = latest.balance.equity > 0
+                ? (latest.balance.liabilities / latest.balance.equity).toFixed(2)
+                : 'N/A';
+            
+            ratios.debtRatio = latest.balance.assets > 0
+                ? ((latest.balance.liabilities / latest.balance.assets) * 100).toFixed(2) + '%'
+                : 'N/A';
+            
+            ratios.equityRatio = latest.balance.assets > 0
+                ? ((latest.balance.equity / latest.balance.assets) * 100).toFixed(2) + '%'
+                : 'N/A';
+
+            // EFFICIENCY RATIOS
+            ratios.assetTurnover = latest.balance.assets > 0
+                ? (latest.income.revenue / latest.balance.assets).toFixed(2)
+                : 'N/A';
+            
+            ratios.receivablesTurnover = latest.income.revenue > 0
+                ? ((latest.income.revenue) / (latest.balance.assets * 0.15)).toFixed(2)
+                : 'N/A';
+            
+            ratios.inventoryTurnover = latest.income.revenue > 0
+                ? ((latest.income.revenue) / (latest.balance.assets * 0.1)).toFixed(2)
+                : 'N/A';
+
+            appState.ratios = ratios;
+            console.log("[v0] Calculated ratios:", ratios);
+
+            return ratios;
+        }
+
+        // ============================================
+        // DISPLAY RESULTS
+        // ============================================
+        function displayResults() {
+            const latest = appState.financialData;
+            const latestYear = appState.analysisYears;
+            const latestData = latest.balance[latestYear] || {};
+
+            // Update summary cards
+            document.getElementById('summaryCompany').textContent = appState.companyName;
+            document.getElementById('summaryPeriod').textContent = `${appState.analysisYears} Year(s)`;
+            document.getElementById('summaryAssets').textContent = formatCurrency(latestData.assets || 0);
+            document.getElementById('summaryIncome').textContent = formatCurrency(latest.income[latestYear]?.netIncome || 0);
+
+            // Update ratio displays
+            updateRatioDisplay('currentRatio', appState.ratios.currentRatio, 'Ideal: 1.5-3.0');
+            updateRatioDisplay('quickRatio', appState.ratios.quickRatio, 'Ideal: 1.0+');
+            updateRatioDisplay('cashRatio', appState.ratios.cashRatio, 'Ideal: 0.5+');
+            updateRatioDisplay('netMargin', appState.ratios.netMargin, 'Higher is better');
+            updateRatioDisplay('grossMargin', appState.ratios.grossMargin, 'Higher is better');
+            updateRatioDisplay('roe', appState.ratios.roe, 'Higher is better');
+            updateRatioDisplay('roa', appState.ratios.roa, 'Higher is better');
+            updateRatioDisplay('debtToEquity', appState.ratios.debtToEquity, 'Ideal: < 2.0');
+            updateRatioDisplay('debtRatio', appState.ratios.debtRatio, 'Ideal: < 60%');
+            updateRatioDisplay('equityRatio', appState.ratios.equityRatio, 'Higher is better');
+            updateRatioDisplay('assetTurnover', appState.ratios.assetTurnover, 'Higher is better');
+            updateRatioDisplay('receivablesTurnover', appState.ratios.receivablesTurnover, 'Higher is better');
+            updateRatioDisplay('inventoryTurnover', appState.ratios.inventoryTurnover, 'Higher is better');
+
+            // Update tables
+            updateFinancialTables();
+        }
+
+        function updateRatioDisplay(elementId, value, benchmark) {
+            const elem = document.getElementById(elementId);
+            if (elem) {
+                elem.textContent = value;
+                const changeElem = document.getElementById(elementId + 'Change');
+                if (changeElem) {
+                    changeElem.textContent = benchmark;
                 }
+            }
+        }
 
-                const analysis = getTrendAnalysis(ratio, change);
+        function updateFinancialTables() {
+            const latestYear = appState.analysisYears;
 
-                html += `
+            // Income Statement Table
+            const incomeTable = document.getElementById('incomeTable');
+            const incomeRows = [];
+            const incomeData = appState.financialData.income;
+
+            for (let year = 1; year <= latestYear; year++) {
+                if (!incomeData[year]) continue;
+                const d = incomeData[year];
+                if (year === 1) {
+                    incomeTable.innerHTML = `
+                        <thead>
+                            <tr>
+                                <th>Metric</th>
+                                ${Array.from({ length: latestYear }, (_, i) => `<th class="text-right">${appState.years[i]}</th>`).join('')}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Revenue (${appState.currency})</td>
+                                ${Array.from({ length: latestYear }, (_, i) => `<td class="text-right">${formatCurrency(incomeData[i+1]?.revenue || 0)}</td>`).join('')}
+                            </tr>
+                            <tr>
+                                <td>Net Income (${appState.currency})</td>
+                                ${Array.from({ length: latestYear }, (_, i) => `<td class="text-right">${formatCurrency(incomeData[i+1]?.netIncome || 0)}</td>`).join('')}
+                            </tr>
+                            <tr>
+                                <td>Operating Expenses (${appState.currency})</td>
+                                ${Array.from({ length: latestYear }, (_, i) => `<td class="text-right">${formatCurrency(incomeData[i+1]?.expenses || 0)}</td>`).join('')}
+                            </tr>
+                        </tbody>
+                    `;
+                }
+            }
+
+            // Balance Sheet Table
+            const balanceTable = document.getElementById('balanceTable');
+            const balanceData = appState.financialData.balance;
+
+            balanceTable.innerHTML = `
+                <thead>
                     <tr>
-                        <td><strong>${formatLabel(ratio)}</strong></td>
-                        <td style="color: ${statusColor}; font-weight: 600;">${change > 0 ? '+' : ''}${change}%</td>
-                        <td>${analysis}</td>
+                        <th>Metric</th>
+                        ${Array.from({ length: latestYear }, (_, i) => `<th class="text-right">${appState.years[i]}</th>`).join('')}
                     </tr>
-                `;
-            }
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Total Assets (${appState.currency})</td>
+                        ${Array.from({ length: latestYear }, (_, i) => `<td class="text-right">${formatCurrency(balanceData[i+1]?.assets || 0)}</td>`).join('')}
+                    </tr>
+                    <tr>
+                        <td>Total Liabilities (${appState.currency})</td>
+                        ${Array.from({ length: latestYear }, (_, i) => `<td class="text-right">${formatCurrency(balanceData[i+1]?.liabilities || 0)}</td>`).join('')}
+                    </tr>
+                    <tr>
+                        <td>Total Equity (${appState.currency})</td>
+                        ${Array.from({ length: latestYear }, (_, i) => `<td class="text-right">${formatCurrency(balanceData[i+1]?.equity || 0)}</td>`).join('')}
+                    </tr>
+                    <tr>
+                        <td>Current Assets (${appState.currency})</td>
+                        ${Array.from({ length: latestYear }, (_, i) => `<td class="text-right">${formatCurrency(balanceData[i+1]?.currentAssets || 0)}</td>`).join('')}
+                    </tr>
+                    <tr>
+                        <td>Current Liabilities (${appState.currency})</td>
+                        ${Array.from({ length: latestYear }, (_, i) => `<td class="text-right">${formatCurrency(balanceData[i+1]?.currentLiabilities || 0)}</td>`).join('')}
+                    </tr>
+                </tbody>
+            `;
 
-            html += '</table></div>';
-            container.innerHTML = html;
+            // Cash Flow Table
+            const cashTable = document.getElementById('cashTable');
+            const cashData = appState.financialData.cashFlow;
+
+            cashTable.innerHTML = `
+                <thead>
+                    <tr>
+                        <th>Metric</th>
+                        ${Array.from({ length: latestYear }, (_, i) => `<th class="text-right">${appState.years[i]}</th>`).join('')}
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Operating Cash Flow (${appState.currency})</td>
+                        ${Array.from({ length: latestYear }, (_, i) => `<td class="text-right">${formatCurrency(cashData[i+1]?.operatingCF || 0)}</td>`).join('')}
+                    </tr>
+                    <tr>
+                        <td>Free Cash Flow (${appState.currency})</td>
+                        ${Array.from({ length: latestYear }, (_, i) => `<td class="text-right">${formatCurrency(cashData[i+1]?.freeCF || 0)}</td>`).join('')}
+                    </tr>
+                    <tr>
+                        <td>Capital Expenditures (${appState.currency})</td>
+                        ${Array.from({ length: latestYear }, (_, i) => `<td class="text-right">${formatCurrency(cashData[i+1]?.capex || 0)}</td>`).join('')}
+                    </tr>
+                </tbody>
+            `;
         }
 
-        function getTrendAnalysis(ratio, change) {
-            const positiveTrends = ['Margin', 'ROE', 'ROA', 'Turnover'];
-            const isPositive = positiveTrends.some(t => ratio.includes(t));
-            const isGoodTrend = isPositive ? change > 0 : change < 0;
+        // ============================================
+        // CHART GENERATION
+        // ============================================
+        function generateCharts() {
+            const latestYear = appState.analysisYears;
+            const years = appState.years;
 
-            if (isGoodTrend) {
-                return '✓ Positive trend';
-            } else {
-                return '⚠ Negative trend - investigate';
-            }
-        }
+            // Destroy existing charts
+            Object.values(chartInstances).forEach(chart => {
+                if (chart) chart.destroy();
+            });
 
-        // ============================================================================
-        // CHARTS
-        // ============================================================================
-        function createCharts() {
-            createRatioChart();
-            createTrendChart();
-            createProfitabilityChart();
-        }
-
-        function createRatioChart() {
-            const ctx = document.getElementById('ratioChart');
-            if (appState.charts.ratioChart) appState.charts.ratioChart.destroy();
-
-            const selectedData = {};
-            for (const year of appState.selectedYears) {
-                selectedData[year] = appState.ratios[year];
-            }
-
-            const datasets = [
-                {
-                    label: 'Current Ratio',
-                    data: appState.selectedYears.map(y => parseFloat(selectedData[y]?.currentRatio) || 0),
-                    borderColor: '#3b82f6',
-                    tension: 0.4
-                },
-                {
-                    label: 'Quick Ratio',
-                    data: appState.selectedYears.map(y => parseFloat(selectedData[y]?.quickRatio) || 0),
-                    borderColor: '#60a5fa',
-                    tension: 0.4
-                },
-                {
-                    label: 'Debt-to-Equity',
-                    data: appState.selectedYears.map(y => parseFloat(selectedData[y]?.debtToEquity) || 0),
-                    borderColor: '#ef4444',
-                    tension: 0.4
-                }
-            ];
-
-            appState.charts.ratioChart = new Chart(ctx, {
+            // Chart 1: Revenue & Net Income Trend
+            const incomeCtx = document.getElementById('trendChart').getContext('2d');
+            chartInstances.trend = new Chart(incomeCtx, {
                 type: 'line',
                 data: {
-                    labels: appState.selectedYears,
-                    datasets: datasets
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: true, position: 'top' }
-                    },
-                    scales: {
-                        y: { beginAtZero: true }
-                    }
-                }
-            });
-        }
-
-        function createTrendChart() {
-            const ctx = document.getElementById('trendChart');
-            if (appState.charts.trendChart) appState.charts.trendChart.destroy();
-
-            const datasets = [
-                {
-                    label: 'Net Profit Margin (%)',
-                    data: appState.selectedYears.map(y => parseFloat(appState.ratios[y]?.netProfitMargin) || 0),
-                    borderColor: '#10b981',
-                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                    tension: 0.4,
-                    fill: true
-                },
-                {
-                    label: 'ROE (%)',
-                    data: appState.selectedYears.map(y => parseFloat(appState.ratios[y]?.roe) || 0),
-                    borderColor: '#f59e0b',
-                    backgroundColor: 'rgba(245, 158, 11, 0.1)',
-                    tension: 0.4,
-                    fill: true
-                }
-            ];
-
-            appState.charts.trendChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: appState.selectedYears,
-                    datasets: datasets
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: true, position: 'top' }
-                    },
-                    scales: {
-                        y: { beginAtZero: true }
-                    }
-                }
-            });
-        }
-
-        function createProfitabilityChart() {
-            const ctx = document.getElementById('profitabilityChart');
-            if (appState.charts.profitabilityChart) appState.charts.profitabilityChart.destroy();
-
-            appState.charts.profitabilityChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: appState.selectedYears,
+                    labels: years,
                     datasets: [
                         {
-                            label: 'ROA (%)',
-                            data: appState.selectedYears.map(y => parseFloat(appState.ratios[y]?.roa) || 0),
-                            backgroundColor: '#3b82f6'
+                            label: 'Revenue',
+                            data: Array.from({ length: latestYear }, (_, i) => appState.financialData.income[i+1]?.revenue || 0),
+                            borderColor: '#6366f1',
+                            backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                            tension: 0.4,
+                            fill: true
                         },
                         {
-                            label: 'Gross Margin (%)',
-                            data: appState.selectedYears.map(y => parseFloat(appState.ratios[y]?.grossMargin) || 0),
-                            backgroundColor: '#10b981'
-                        },
-                        {
-                            label: 'Operating Margin (%)',
-                            data: appState.selectedYears.map(y => parseFloat(appState.ratios[y]?.operatingMargin) || 0),
-                            backgroundColor: '#f59e0b'
+                            label: 'Net Income',
+                            data: Array.from({ length: latestYear }, (_, i) => appState.financialData.income[i+1]?.netIncome || 0),
+                            borderColor: '#10b981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            tension: 0.4,
+                            fill: true
                         }
                     ]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: true, position: 'top' }
-                    },
+                    plugins: { legend: { labels: { color: '#f1f5f9' } } },
                     scales: {
-                        y: { beginAtZero: true }
+                        y: { ticks: { color: '#f1f5f9' }, grid: { color: 'rgba(71, 85, 105, 0.2)' } },
+                        x: { ticks: { color: '#f1f5f9' }, grid: { color: 'rgba(71, 85, 105, 0.2)' } }
+                    }
+                }
+            });
+
+            // Chart 2: Profitability Metrics
+            const profitCtx = document.getElementById('profitabilityChart').getContext('2d');
+            chartInstances.profit = new Chart(profitCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Net Margin', 'Gross Margin', 'ROE', 'ROA'],
+                    datasets: [{
+                        label: 'Profitability %',
+                        data: [
+                            parseFloat(appState.ratios.netMargin) || 0,
+                            parseFloat(appState.ratios.grossMargin) || 0,
+                            parseFloat(appState.ratios.roe) || 0,
+                            parseFloat(appState.ratios.roa) || 0
+                        ],
+                        backgroundColor: ['#6366f1', '#10b981', '#f59e0b', '#ef4444'],
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { labels: { color: '#f1f5f9' } } },
+                    scales: {
+                        y: { ticks: { color: '#f1f5f9' }, grid: { color: 'rgba(71, 85, 105, 0.2)' } },
+                        x: { ticks: { color: '#f1f5f9' }, grid: { color: 'rgba(71, 85, 105, 0.2)' } }
+                    }
+                }
+            });
+
+            // Chart 3: Capital Structure
+            const balanceData = appState.financialData.balance[latestYear] || {};
+            const capitalCtx = document.getElementById('capitalChart').getContext('2d');
+            chartInstances.capital = new Chart(capitalCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Equity', 'Liabilities'],
+                    datasets: [{
+                        data: [balanceData.equity || 0, balanceData.liabilities || 0],
+                        backgroundColor: ['#10b981', '#ef4444'],
+                        borderColor: '#1e293b',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { labels: { color: '#f1f5f9' } } }
+                }
+            });
+
+            // Chart 4: Liquidity Ratios
+            const liquidityCtx = document.getElementById('liquidityChart').getContext('2d');
+            chartInstances.liquidity = new Chart(liquidityCtx, {
+                type: 'radar',
+                data: {
+                    labels: ['Current Ratio', 'Quick Ratio', 'Cash Ratio'],
+                    datasets: [{
+                        label: 'Liquidity Position',
+                        data: [
+                            parseFloat(appState.ratios.currentRatio) || 0,
+                            parseFloat(appState.ratios.quickRatio) || 0,
+                            parseFloat(appState.ratios.cashRatio) || 0
+                        ],
+                        borderColor: '#6366f1',
+                        backgroundColor: 'rgba(99, 102, 241, 0.2)',
+                        pointBackgroundColor: '#6366f1'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { labels: { color: '#f1f5f9' } } },
+                    scales: {
+                        r: { ticks: { color: '#f1f5f9' }, grid: { color: 'rgba(71, 85, 105, 0.2)' } }
                     }
                 }
             });
         }
 
-        // ============================================================================
-        // AI INSIGHTS
-        // ============================================================================
-        document.addEventListener('DOMContentLoaded', function() {
-            const aiProvider = document.getElementById('aiProvider');
-            const apiKeyInput = document.getElementById('apiKeyInput');
-            
-            if (aiProvider) {
-                aiProvider.addEventListener('change', function() {
-                    apiKeyInput.style.display = this.value === 'none' ? 'none' : 'block';
-                });
-            }
-        });
+        // ============================================
+        // AI INSIGHTS GENERATION
+        // ============================================
+        async function generateAIInsights() {
+            const model = document.getElementById('aiModel').value;
+            const apiKey = document.getElementById('aiApiKey').value;
 
-        async function generateInsights() {
-            const provider = document.getElementById('aiProvider').value;
-            const apiKey = document.getElementById('apiKey').value;
-            const display = document.getElementById('insightsDisplay');
-            const btn = document.getElementById('insightBtn');
+            console.log("[v0] Generating insights with model:", model);
 
-            btn.disabled = true;
-            display.innerHTML = '<div class="insights-loading"><div class="spinner"></div> Generating insights...</div>';
-
-            try {
-                let insights = '';
-
-                if (provider === 'none') {
-                    insights = generateBuiltInInsights();
-                } else if (!apiKey) {
-                    throw new Error('Please enter your API key');
-                } else if (provider === 'openai') {
-                    insights = await getOpenAIInsights(apiKey);
-                } else if (provider === 'grok') {
-                    insights = await getGrokInsights(apiKey);
-                } else if (provider === 'claude') {
-                    insights = await getClaudeInsights(apiKey);
-                }
-
-                displayInsights(insights);
-            } catch (error) {
-                console.error('[v0] Insights error:', error);
-                display.innerHTML = `
-                    <div class="alert alert-danger">
-                        ❌ Error: ${error.message}
-                        <br><small>Falling back to built-in analysis...</small>
-                    </div>
-                    <div class="insights-container">
-                        <div class="insights-title">Built-in Analysis</div>
-                        <div class="insights-text">${generateBuiltInInsights()}</div>
-                    </div>
-                `;
-            } finally {
-                btn.disabled = false;
+            if (model === 'basic') {
+                generateBasicInsights();
+            } else if (apiKey) {
+                generateAPIInsights(model, apiKey);
+            } else {
+                alert('Please enter an API key for advanced AI analysis');
             }
         }
 
-        function generateBuiltInInsights() {
-            const latestYear = Object.keys(appState.ratios).sort().pop();
-            const latest = appState.ratios[latestYear];
-            const trends = appState.trends;
+        function generateBasicInsights() {
+            console.log("[v0] Generating basic (no API) insights");
+
+            const latest = appState.financialData;
+            const latestYear = appState.analysisYears;
+            const latestData = latest.balance[latestYear] || {};
+            const incomeData = latest.income[latestYear] || {};
 
             let insights = '';
 
-            // Profitability Analysis
-            const npm = parseFloat(latest.netProfitMargin);
-            const roe = parseFloat(latest.roe);
-            const roa = parseFloat(latest.roa);
+            // Financial Health Assessment
+            const debtToEquity = parseFloat(appState.ratios.debtToEquity);
+            const currentRatio = parseFloat(appState.ratios.currentRatio);
+            const netMargin = parseFloat(appState.ratios.netMargin);
+            const roe = parseFloat(appState.ratios.roe);
 
-            if (npm > 15) {
-                insights += '💰 <strong>Strong Profitability:</strong> Net profit margin of ' + npm + '% indicates excellent cost control and pricing power.\n\n';
-            } else if (npm > 5) {
-                insights += '📊 <strong>Moderate Profitability:</strong> Net profit margin of ' + npm + '% is healthy for most industries.\n\n';
-            } else if (npm > 0) {
-                insights += '⚠️ <strong>Low Profitability:</strong> Net profit margin of ' + npm + '% suggests tight margins. Review cost structure.\n\n';
-            }
-
-            if (roe > 15) {
-                insights += '📈 <strong>Strong ROE:</strong> ' + roe + '% ROE demonstrates efficient use of shareholder equity.\n\n';
-            }
+            insights += '<h4 style="color: var(--primary); margin-top: 15px;">Financial Health Overview</h4>';
 
             // Liquidity Analysis
-            const currentRatio = parseFloat(latest.currentRatio);
-            if (currentRatio > 2) {
-                insights += '💧 <strong>Excellent Liquidity:</strong> Current ratio of ' + currentRatio + ' indicates strong short-term financial health.\n\n';
-            } else if (currentRatio > 1.5) {
-                insights += '✓ <strong>Good Liquidity:</strong> Current ratio of ' + currentRatio + ' is healthy.\n\n';
-            } else if (currentRatio > 1) {
-                insights += '⚠️ <strong>Adequate Liquidity:</strong> Current ratio of ' + currentRatio + ' is acceptable but monitor closely.\n\n';
+            if (currentRatio > 1.5) {
+                insights += '<div class="insight-point"><strong>Liquidity:</strong> Excellent short-term financial position. Company can comfortably meet its short-term obligations.</div>';
+            } else if (currentRatio > 1.0) {
+                insights += '<div class="insight-point"><strong>Liquidity:</strong> Adequate liquidity position. Monitor cash flow trends to maintain healthy position.</div>';
             } else {
-                insights += '🚨 <strong>Liquidity Concern:</strong> Current ratio below 1 may indicate cash flow challenges.\n\n';
+                insights += '<div class="insight-point"><strong>Liquidity:</strong> ⚠️ Potential liquidity concerns. Current assets may not be sufficient to cover short-term liabilities.</div>';
+            }
+
+            // Profitability Analysis
+            if (netMargin > 10) {
+                insights += '<div class="insight-point"><strong>Profitability:</strong> Strong profit margins indicate efficient operations and good cost management.</div>';
+            } else if (netMargin > 0) {
+                insights += '<div class="insight-point"><strong>Profitability:</strong> Moderate profitability. Consider optimizing operations to improve margins.</div>';
+            } else {
+                insights += '<div class="insight-point"><strong>Profitability:</strong> ⚠️ Negative or low profitability requires operational improvements.</div>';
             }
 
             // Leverage Analysis
-            const dte = parseFloat(latest.debtToEquity);
-            if (dte < 0.5) {
-                insights += '🛡️ <strong>Conservative Debt:</strong> Debt-to-equity of ' + dte + ' shows low financial risk.\n\n';
-            } else if (dte < 1) {
-                insights += '⚖️ <strong>Balanced Leverage:</strong> Debt-to-equity of ' + dte + ' is reasonable.\n\n';
-            } else if (dte < 2) {
-                insights += '⚠️ <strong>High Leverage:</strong> Debt-to-equity of ' + dte + ' warrants caution. Consider debt reduction.\n\n';
+            if (debtToEquity < 1.0) {
+                insights += '<div class="insight-point"><strong>Leverage:</strong> Conservative capital structure with lower financial risk. Healthy debt levels.</div>';
+            } else if (debtToEquity < 2.0) {
+                insights += '<div class="insight-point"><strong>Leverage:</strong> Moderate leverage. Current debt levels are manageable with existing equity.</div>';
             } else {
-                insights += '🚨 <strong>Very High Leverage:</strong> Debt-to-equity of ' + dte + ' indicates significant financial risk.\n\n';
+                insights += '<div class="insight-point"><strong>Leverage:</strong> ⚠️ High leverage indicates significant financial risk. Consider debt reduction strategies.</div>';
+            }
+
+            // ROE Analysis
+            if (roe > 15) {
+                insights += '<div class="insight-point"><strong>Returns:</strong> Excellent return on equity, demonstrating strong value creation for shareholders.</div>';
+            } else if (roe > 5) {
+                insights += '<div class="insight-point"><strong>Returns:</strong> Moderate returns on equity. Room for improvement in shareholder value creation.</div>';
+            } else {
+                insights += '<div class="insight-point"><strong>Returns:</strong> ⚠️ Low returns on equity. Investigate operational efficiency and profitability drivers.</div>';
             }
 
             // Trend Analysis
-            if (trends.netProfitMargin && parseFloat(trends.netProfitMargin) > 10) {
-                insights += '📈 <strong>Improving Profitability Trend:</strong> Net profit margin up ' + trends.netProfitMargin + '% - positive momentum.\n\n';
-            } else if (trends.netProfitMargin && parseFloat(trends.netProfitMargin) < -10) {
-                insights += '📉 <strong>Declining Profitability:</strong> Net profit margin down ' + trends.netProfitMargin + '% - investigate causes.\n\n';
+            insights += '<h4 style="color: var(--primary); margin-top: 15px;">Key Observations</h4>';
+            
+            if (latestData.assets > 0) {
+                insights += `<div class="insight-point"><strong>Total Assets:</strong> ${formatCurrency(latestData.assets)} - Asset base reflects company scale and growth capacity.</div>`;
+            }
+            
+            if (incomeData.netIncome > 0) {
+                insights += `<div class="insight-point"><strong>Net Income:</strong> ${formatCurrency(incomeData.netIncome)} - Positive earnings support sustainability and growth investments.</div>`;
             }
 
             // Recommendations
-            insights += '💡 <strong>Recommendations:</strong>\n';
-            if (currentRatio < 1.5) {
-                insights += '• Improve liquidity by reducing short-term debt or increasing working capital\n';
+            insights += '<h4 style="color: var(--primary); margin-top: 15px;">Strategic Recommendations</h4>';
+            
+            if (currentRatio < 1.5 || debtToEquity > 1.5) {
+                insights += '<div class="insight-point"><strong>🎯 Action:</strong> Strengthen balance sheet through improved cash management and debt reduction initiatives.</div>';
             }
-            if (dte > 1.5) {
-                insights += '• Develop debt reduction strategy; consider refinancing high-interest debt\n';
+            
+            if (netMargin < 5) {
+                insights += '<div class="insight-point"><strong>🎯 Action:</strong> Focus on operational efficiency and cost optimization to improve margins.</div>';
             }
-            if (npm < 5) {
-                insights += '• Review pricing strategy and operational efficiency; identify cost-saving opportunities\n';
-            }
-            if (roa < 5) {
-                insights += '• Optimize asset utilization; assess if all assets are generating adequate returns\n';
+            
+            if (roe < 10) {
+                insights += '<div class="insight-point"><strong>🎯 Action:</strong> Review capital allocation strategy and asset utilization efficiency.</div>';
             }
 
-            return insights;
+            insights += '<div class="insight-point"><strong>💡 General:</strong> Continue monitoring quarterly performance against these key metrics to track progress and identify emerging trends.</div>';
+
+            displayAIInsights(insights);
         }
 
-        async function getOpenAIInsights(apiKey) {
-            const prompt = buildAIPrompt();
-            
-            const response = await fetch('https://api.openai.com/v1/chat/completions', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${apiKey}`
-                },
-                body: JSON.stringify({
-                    model: 'gpt-4o-mini',
-                    messages: [
-                        {
-                            role: 'system',
-                            content: 'You are an expert financial analyst. Provide concise, actionable insights on the financial ratios and trends provided.'
+        async function generateAPIInsights(model, apiKey) {
+            console.log("[v0] Generating API insights with", model);
+
+            const prompt = createAnalysisPrompt();
+
+            try {
+                document.getElementById('aiError').classList.add('hidden');
+                document.getElementById('aiInsightsContainer').classList.remove('hidden');
+                document.getElementById('aiInsightsContent').innerHTML = '<span class="spinner"></span> Analyzing financial data...';
+
+                let response;
+
+                if (model.startsWith('openai')) {
+                    response = await fetch('https://api.openai.com/v1/chat/completions', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${apiKey}`
                         },
-                        {
-                            role: 'user',
-                            content: prompt
-                        }
-                    ],
-                    max_tokens: 1000
-                })
-            });
+                        body: JSON.stringify({
+                            model: model.split('/')[1],
+                            messages: [{ role: 'user', content: prompt }],
+                            temperature: 0.7,
+                            max_tokens: 1500
+                        })
+                    });
 
-            if (!response.ok) {
-                const error = await response.json();
-                throw new Error(error.error?.message || 'OpenAI API error');
+                    if (!response.ok) throw new Error('API Error: ' + response.statusText);
+                    const data = await response.json();
+                    const insights = data.choices[0].message.content;
+                    displayAIInsights(formatMarkdownToHTML(insights));
+                } else {
+                    throw new Error('Model not supported. Please use OpenAI models.');
+                }
+            } catch (error) {
+                console.error("[v0] AI error:", error);
+                const errorDiv = document.getElementById('aiError');
+                errorDiv.classList.remove('hidden');
+                errorDiv.innerHTML = '✗ Error generating AI insights: ' + error.message;
+                document.getElementById('aiInsightsContainer').classList.add('hidden');
             }
-
-            const data = await response.json();
-            return data.choices[0].message.content;
         }
 
-        async function getGrokInsights(apiKey) {
-            const prompt = buildAIPrompt();
+        function createAnalysisPrompt() {
+            const latest = appState.financialData;
+            const latestYear = appState.analysisYears;
 
-            const response = await fetch('https://api.x.ai/v1/chat/completions', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${apiKey}`
-                },
-                body: JSON.stringify({
-                    model: 'grok-2',
-                    messages: [
-                        {
-                            role: 'system',
-                            content: 'You are an expert financial analyst. Provide concise, actionable insights on the financial ratios and trends provided.'
-                        },
-                        {
-                            role: 'user',
-                            content: prompt
-                        }
-                    ],
-                    max_tokens: 1000
-                })
-            });
+            return `You are a professional financial analyst. Analyze the following financial data and provide actionable insights:
 
-            if (!response.ok) {
-                const error = await response.json();
-                throw new Error(error.error?.message || 'Grok API error');
+Company: ${appState.companyName}
+Analysis Period: ${latestYear} year(s)
+Currency: ${appState.currency}
+
+FINANCIAL RATIOS:
+- Current Ratio: ${appState.ratios.currentRatio}
+- Quick Ratio: ${appState.ratios.quickRatio}
+- Net Profit Margin: ${appState.ratios.netMargin}
+- ROE: ${appState.ratios.roe}
+- ROA: ${appState.ratios.roa}
+- Debt-to-Equity: ${appState.ratios.debtToEquity}
+
+FINANCIAL DATA (Latest Year):
+- Revenue: ${formatCurrency(latest.income[latestYear]?.revenue || 0)}
+- Net Income: ${formatCurrency(latest.income[latestYear]?.netIncome || 0)}
+- Total Assets: ${formatCurrency(latest.balance[latestYear]?.assets || 0)}
+- Total Liabilities: ${formatCurrency(latest.balance[latestYear]?.liabilities || 0)}
+- Total Equity: ${formatCurrency(latest.balance[latestYear]?.equity || 0)}
+
+Please provide:
+1. Overall financial health assessment
+2. Strengths and weaknesses
+3. Key risks and opportunities
+4. Specific actionable recommendations
+5. Areas requiring immediate attention
+
+Format your response clearly with sections.`;
+        }
+
+        function displayAIInsights(html) {
+            document.getElementById('aiInsightsContainer').classList.remove('hidden');
+            document.getElementById('aiInsightsContent').innerHTML = html;
+        }
+
+        function formatMarkdownToHTML(md) {
+            return md
+                .replace(/^### (.*?)$/gm, '<h4 style="color: var(--primary); margin-top: 15px;">$1</h4>')
+                .replace(/^## (.*?)$/gm, '<h3 style="color: var(--primary); margin-top: 20px;">$1</h3>')
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\n/g, '<br>')
+                .replace(/\n\n/g, '</p><p>');
+        }
+
+        // ============================================
+        // UTILITY FUNCTIONS
+        // ============================================
+        function formatCurrency(num) {
+            if (num === 0 || !num) return appState.currency + ' 0';
+            const abs = Math.abs(num);
+            if (abs >= 1000) {
+                return appState.currency + ' ' + (num / 1000).toFixed(1) + 'K';
             }
-
-            const data = await response.json();
-            return data.choices[0].message.content;
+            return appState.currency + ' ' + num.toFixed(2);
         }
 
-        async function getClaudeInsights(apiKey) {
-            const prompt = buildAIPrompt();
-
-            const response = await fetch('https://api.anthropic.com/v1/messages', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'x-api-key': apiKey,
-                    'anthropic-version': '2023-06-01'
-                },
-                body: JSON.stringify({
-                    model: 'claude-3-5-sonnet-20241022',
-                    max_tokens: 1000,
-                    messages: [
-                        {
-                            role: 'user',
-                            content: prompt
-                        }
-                    ]
-                })
-            });
-
-            if (!response.ok) {
-                const error = await response.json();
-                throw new Error(error.error?.message || 'Claude API error');
-            }
-
-            const data = await response.json();
-            return data.content[0].text;
-        }
-
-        function buildAIPrompt() {
-            const latestYear = Object.keys(appState.ratios).sort().pop();
-            const ratios = appState.ratios[latestYear];
-            
-            return `Analyze these financial ratios for ${appState.companyName || 'a company'} (${latestYear}):
-            
-Current Ratio: ${ratios.currentRatio}
-Quick Ratio: ${ratios.quickRatio}
-Net Profit Margin: ${ratios.netProfitMargin}%
-ROE: ${ratios.roe}%
-ROA: ${ratios.roa}%
-Debt-to-Equity: ${ratios.debtToEquity}
-Asset Turnover: ${ratios.assetTurnover}
-Gross Margin: ${ratios.grossMargin}%
-
-Provide a brief professional analysis covering:
-1. Financial health (liquidity, solvency, profitability)
-2. Key strengths and weaknesses
-3. Main risks and opportunities
-4. 2-3 specific actionable recommendations
-
-Keep it concise and practical.`;
-        }
-
-        function displayInsights(insights) {
-            const display = document.getElementById('insightsDisplay');
-            const text = insights.replace(/\n/g, '<br>').replace(/\*\*/g, '<strong>').replace(/\*\*/g, '</strong>');
-            
-            display.innerHTML = `
-                <div class="insights-container">
-                    <div class="insights-title">✨ AI Analysis & Recommendations</div>
-                    <div class="insights-text">${text}</div>
-                </div>
-            `;
-        }
-
-        // ============================================================================
-        // EXPORT
-        // ============================================================================
         function exportJSON() {
             const data = {
                 company: appState.companyName,
-                exportDate: new Date().toISOString(),
+                analysisYears: appState.analysisYears,
+                currency: appState.currency,
                 financialData: appState.financialData,
                 ratios: appState.ratios,
-                trends: appState.trends
+                exportDate: new Date().toISOString()
             };
 
             const json = JSON.stringify(data, null, 2);
@@ -1733,39 +1954,59 @@ Keep it concise and practical.`;
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `${appState.companyName}-analysis.json`;
+            a.download = `${appState.companyName}-analysis-${new Date().toISOString().split('T')[0]}.json`;
             a.click();
+            URL.revokeObjectURL(url);
         }
 
         function exportCSV() {
-            let csv = `Company,${appState.companyName}\nExport Date,${new Date().toISOString()}\n\n`;
-            csv += 'Year,Current Ratio,Quick Ratio,Net Profit Margin,ROE,ROA,Debt-to-Equity,Asset Turnover\n';
+            let csv = 'Financial Statement Analysis\n';
+            csv += `Company,${appState.companyName}\n`;
+            csv += `Analysis Years,${appState.analysisYears}\n`;
+            csv += `Currency,${appState.currency}\n`;
+            csv += `Export Date,${new Date().toISOString()}\n\n`;
 
-            for (const year of Object.keys(appState.ratios).sort()) {
-                const r = appState.ratios[year];
-                csv += `${year},${r.currentRatio},${r.quickRatio},${r.netProfitMargin},${r.roe},${r.roa},${r.debtToEquity},${r.assetTurnover}\n`;
-            }
+            csv += 'FINANCIAL RATIOS\n';
+            Object.entries(appState.ratios).forEach(([key, value]) => {
+                csv += `${key},${value}\n`;
+            });
+
+            csv += '\nFINANCIAL DATA\n';
+            csv += 'Metric,' + appState.years.join(',') + '\n';
+
+            // Income data
+            csv += 'Revenue,' + Array.from({ length: appState.analysisYears }, (_, i) => appState.financialData.income[i+1]?.revenue || 0).join(',') + '\n';
+            csv += 'Net Income,' + Array.from({ length: appState.analysisYears }, (_, i) => appState.financialData.income[i+1]?.netIncome || 0).join(',') + '\n';
+            csv += 'Total Assets,' + Array.from({ length: appState.analysisYears }, (_, i) => appState.financialData.balance[i+1]?.assets || 0).join(',') + '\n';
 
             const blob = new Blob([csv], { type: 'text/csv' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `${appState.companyName}-ratios.csv`;
+            a.download = `${appState.companyName}-analysis-${new Date().toISOString().split('T')[0]}.csv`;
             a.click();
+            URL.revokeObjectURL(url);
         }
 
-        // ============================================================================
-        // TAB SWITCHING
-        // ============================================================================
-        function switchTab(tabName) {
-            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            
-            document.getElementById(tabName).classList.add('active');
-            event.target.classList.add('active');
-
-            if (tabName === 'manual-entry') {
-                generateManualDataForm();
+        function resetApp() {
+            if (confirm('Reset all data and start over?')) {
+                document.getElementById('fileInput').value = '';
+                document.getElementById('companyName').value = '';
+                document.getElementById('analysisPeriodText').value = '';
+                document.getElementById('aiApiKey').value = '';
+                document.getElementById('uploadStatus').classList.add('hidden');
+                document.getElementById('parsedDataSummary').classList.add('hidden');
+                document.getElementById('resultsSection').classList.add('hidden');
+                appState = {
+                    analysisYears: 1,
+                    companyName: '',
+                    currency: 'Rs.',
+                    financialData: { income: {}, balance: {}, cashFlow: {} },
+                    years: [],
+                    ratios: {}
+                };
+                createDataInputFields();
+                window.scrollTo(0, 0);
             }
         }
     </script>
