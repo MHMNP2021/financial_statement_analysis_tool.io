@@ -3,12 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Financial Statement Analyzer | Professional Analysis</title>
-    <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@4.0.269/build/pdf.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.0.0/dist/tesseract.min.js"></script>
+    <title>Financial Statement Analyzer</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -17,1622 +13,1430 @@
         }
 
         :root {
-            --primary: #0066cc;
-            --primary-light: #e6f2ff;
-            --secondary: #6b7280;
+            --primary: #0f172a;
+            --secondary: #1e293b;
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
             --success: #10b981;
-            --danger: #ef4444;
             --warning: #f59e0b;
-            --bg-dark: #0f172a;
-            --bg-light: #f8fafc;
-            --card-bg: #ffffff;
-            --border-color: #e2e8f0;
-            --text-primary: #1e293b;
-            --text-secondary: #64748b;
+            --danger: #ef4444;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --border: #334155;
+            --bg-elevated: #0f172a;
         }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: linear-gradient(135deg, var(--bg-light) 0%, #f1f5f9 100%);
+        html, body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            background: linear-gradient(135deg, var(--primary) 0%, #1a1f35 100%);
             color: var(--text-primary);
-            line-height: 1.6;
             min-height: 100vh;
         }
 
-        /* ============ HEADER ============ */
-        header {
-            background: white;
-            border-bottom: 1px solid var(--border-color);
-            padding: 1.5rem 0;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .header-container {
+        /* Layout */
+        .container {
             max-width: 1400px;
             margin: 0 auto;
-            padding: 0 2rem;
+            padding: 20px;
+        }
+
+        header {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            padding: 30px 0 40px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 40px;
         }
 
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            font-size: 1.5rem;
+        .header-content h1 {
+            font-size: 32px;
             font-weight: 700;
-            color: var(--primary);
+            background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
-        .logo svg {
-            width: 32px;
-            height: 32px;
+        .header-content p {
+            color: var(--text-secondary);
+            margin-top: 8px;
+            font-size: 14px;
         }
 
-        .theme-toggle {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            padding: 0.5rem;
-        }
-
-        /* ============ MAIN CONTAINER ============ */
-        .container {
-            max-width: 1400px;
-            margin: 2rem auto;
-            padding: 0 2rem;
-        }
-
-        .section {
-            background: white;
-            border-radius: 12px;
-            padding: 2rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-            border: 1px solid var(--border-color);
-        }
-
-        .section-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 1.5rem;
-            color: var(--text-primary);
+        .header-actions {
             display: flex;
-            align-items: center;
-            gap: 0.75rem;
+            gap: 12px;
         }
 
-        /* ============ TABS ============ */
+        /* Tab Navigation */
         .tabs {
             display: flex;
-            gap: 1rem;
-            border-bottom: 2px solid var(--border-color);
-            margin-bottom: 2rem;
-            overflow-x: auto;
+            gap: 4px;
+            background: var(--secondary);
+            padding: 8px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            border: 1px solid var(--border);
         }
 
-        .tab-button {
-            padding: 1rem 1.5rem;
+        .tab-btn {
+            padding: 10px 20px;
             border: none;
-            background: none;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 500;
+            background: transparent;
             color: var(--text-secondary);
-            border-bottom: 3px solid transparent;
-            transition: all 0.3s ease;
+            cursor: pointer;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
         }
 
-        .tab-button.active {
-            color: var(--primary);
-            border-bottom-color: var(--primary);
+        .tab-btn:hover {
+            background: rgba(59, 130, 246, 0.1);
         }
 
-        .tab-button:hover {
-            color: var(--primary);
+        .tab-btn.active {
+            background: var(--accent);
+            color: white;
         }
 
-        .tab-content {
-            display: none;
+        /* Main Grid */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 40px;
         }
 
-        .tab-content.active {
-            display: block;
+        @media (max-width: 1200px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
         }
 
-        /* ============ FORM ELEMENTS ============ */
+        /* Cards */
+        .card {
+            background: var(--secondary);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 28px;
+            transition: all 0.3s;
+        }
+
+        .card:hover {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.1);
+        }
+
+        .card h2 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-icon {
+            width: 24px;
+            height: 24px;
+            background: rgba(59, 130, 246, 0.2);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Form Elements */
         .form-group {
-            margin-bottom: 1.5rem;
+            margin-bottom: 20px;
         }
 
         label {
             display: block;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-            color: var(--text-primary);
-        }
-
-        input, select, textarea {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            font-family: inherit;
-            font-size: 1rem;
-            transition: border-color 0.3s ease;
-        }
-
-        input:focus, select:focus, textarea:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px var(--primary-light);
-        }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-        }
-
-        /* ============ BUTTONS ============ */
-        button {
-            font-family: inherit;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .btn {
-            padding: 0.75rem 1.5rem;
-            border-radius: 8px;
-            border: none;
-            font-weight: 600;
-            font-size: 0.95rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: #0052a3;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3);
-        }
-
-        .btn-secondary {
-            background: var(--bg-light);
-            color: var(--text-primary);
-            border: 1px solid var(--border-color);
-        }
-
-        .btn-secondary:hover {
-            background: #f1f5f9;
-        }
-
-        .btn-success {
-            background: var(--success);
-            color: white;
-        }
-
-        .btn-success:hover {
-            background: #059669;
-        }
-
-        .btn-danger {
-            background: var(--danger);
-            color: white;
-        }
-
-        .btn-danger:hover {
-            background: #dc2626;
-        }
-
-        .btn-sm {
-            padding: 0.5rem 1rem;
-            font-size: 0.875rem;
-        }
-
-        .button-group {
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-            margin-top: 1.5rem;
-        }
-
-        /* ============ FILE UPLOAD ============ */
-        .file-upload {
-            border: 2px dashed var(--primary);
-            border-radius: 12px;
-            padding: 3rem 2rem;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            background: var(--primary-light);
-        }
-
-        .file-upload:hover {
-            border-color: #0052a3;
-            background: #cce5ff;
-        }
-
-        .file-upload input[type="file"] {
-            display: none;
-        }
-
-        .file-upload-text {
-            margin-bottom: 1rem;
-        }
-
-        .file-upload-text p {
-            margin: 0.5rem 0;
-        }
-
-        .file-upload-text .large {
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--primary);
-        }
-
-        .file-list {
-            margin-top: 1rem;
-            padding-top: 1rem;
-            border-top: 1px solid var(--border-color);
-        }
-
-        .file-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0.75rem;
-            background: var(--bg-light);
-            border-radius: 8px;
-            margin-bottom: 0.75rem;
-        }
-
-        .file-item-name {
+            margin-bottom: 8px;
+            font-size: 13px;
             font-weight: 500;
-        }
-
-        .file-item-size {
-            font-size: 0.875rem;
             color: var(--text-secondary);
-        }
-
-        /* ============ GRID LAYOUT ============ */
-        .grid-2 {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1.5rem;
-        }
-
-        .grid-3 {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-        }
-
-        .grid-4 {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
-        }
-
-        /* ============ CARDS ============ */
-        .card {
-            background: white;
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 1.5rem;
-            transition: all 0.3s ease;
-        }
-
-        .card:hover {
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            transform: translateY(-2px);
-        }
-
-        .card-title {
-            font-size: 0.875rem;
-            font-weight: 600;
-            color: var(--text-secondary);
-            margin-bottom: 0.5rem;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
 
-        .card-value {
-            font-size: 2rem;
-            font-weight: 700;
+        input[type="number"],
+        input[type="text"],
+        select {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--primary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
             color: var(--text-primary);
+            font-size: 14px;
+            transition: all 0.2s;
         }
 
-        .card-subtext {
-            font-size: 0.875rem;
+        input[type="number"]:focus,
+        input[type="text"]:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        /* Grid for form inputs */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .form-grid.full {
+            grid-template-columns: 1fr;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent) 0%, #2563eb 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, var(--accent-hover) 0%, #1d4ed8 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-elevated);
+            border-color: var(--accent);
+        }
+
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 12px;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        /* Year Selection */
+        .year-selector {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .year-badge {
+            padding: 8px 16px;
+            background: var(--primary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+
+        .year-badge:hover {
+            border-color: var(--accent);
+        }
+
+        .year-badge.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+        }
+
+        /* Analysis Section */
+        .analysis-section {
+            display: none;
+        }
+
+        .analysis-section.active {
+            display: block;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .metric-card {
+            background: var(--primary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .metric-label {
+            font-size: 12px;
             color: var(--text-secondary);
-            margin-top: 0.75rem;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
-        .card.positive { border-left: 4px solid var(--success); }
-        .card.negative { border-left: 4px solid var(--danger); }
-        .card.warning { border-left: 4px solid var(--warning); }
+        .metric-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--accent);
+        }
 
-        /* ============ TABLES ============ */
-        .table-container {
+        .metric-change {
+            font-size: 12px;
+            margin-top: 8px;
+            color: var(--success);
+        }
+
+        .metric-change.negative {
+            color: var(--danger);
+        }
+
+        /* Tables */
+        .table-wrapper {
             overflow-x: auto;
-            margin: 1.5rem 0;
+            margin-top: 20px;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
+            font-size: 13px;
         }
 
         thead {
-            background: var(--bg-light);
-            border-bottom: 2px solid var(--border-color);
+            background: var(--primary);
+            border-bottom: 2px solid var(--border);
         }
 
         th {
-            padding: 1rem;
+            padding: 12px;
             text-align: left;
+            color: var(--text-secondary);
             font-weight: 600;
-            color: var(--text-primary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         td {
-            padding: 1rem;
-            border-bottom: 1px solid var(--border-color);
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
         }
 
         tbody tr:hover {
-            background: var(--primary-light);
+            background: rgba(59, 130, 246, 0.05);
         }
 
-        /* ============ ALERTS ============ */
-        .alert {
-            padding: 1rem;
-            border-radius: 8px;
-            margin-bottom: 1rem;
+        /* Charts */
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-top: 24px;
+        }
+
+        /* AI Insights */
+        .insights-box {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(6, 182, 212, 0.05) 100%);
+            border: 1px solid var(--accent);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 24px;
+        }
+
+        .insights-box h3 {
             display: flex;
-            gap: 1rem;
-            align-items: flex-start;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            font-size: 14px;
+            color: var(--accent);
         }
 
-        .alert-icon {
-            font-size: 1.25rem;
-            flex-shrink: 0;
+        .insights-box p {
+            font-size: 13px;
+            line-height: 1.6;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
         }
 
-        .alert-info {
-            background: #eff6ff;
-            border-left: 4px solid var(--primary);
-            color: #0c4a6e;
+        .insights-box ul {
+            margin-left: 20px;
+            font-size: 13px;
+            line-height: 1.6;
+            color: var(--text-secondary);
         }
 
-        .alert-success {
-            background: #f0fdf4;
-            border-left: 4px solid var(--success);
-            color: #166534;
+        .insights-box li {
+            margin-bottom: 8px;
         }
 
-        .alert-warning {
-            background: #fffbeb;
-            border-left: 4px solid var(--warning);
-            color: #92400e;
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-secondary);
         }
 
-        .alert-danger {
-            background: #fef2f2;
-            border-left: 4px solid var(--danger);
-            color: #7f1d1d;
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
         }
 
-        /* ============ LOADING & STATUS ============ */
-        .loading {
+        /* Footer */
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 30px 0;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 12px;
+        }
+
+        /* Status Badge */
+        .status-badge {
             display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid var(--primary-light);
-            border-top-color: var(--primary);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-good {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .status-warning {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        .status-alert {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+
+        /* Loader */
+        .spinner {
+            border: 2px solid rgba(59, 130, 246, 0.2);
+            border-top: 2px solid var(--accent);
             border-radius: 50%;
+            width: 24px;
+            height: 24px;
             animation: spin 0.8s linear infinite;
         }
 
         @keyframes spin {
-            to { transform: rotate(360deg); }
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
-        .loading-text {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            color: var(--text-secondary);
+        /* Alert */
+        .alert {
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            border-left: 4px solid;
         }
 
-        .badge {
-            display: inline-block;
-            padding: 0.25rem 0.75rem;
-            border-radius: 9999px;
-            font-size: 0.75rem;
-            font-weight: 600;
+        .alert-info {
+            background: rgba(59, 130, 246, 0.1);
+            border-left-color: var(--accent);
+            color: var(--accent);
         }
 
-        .badge-primary {
-            background: var(--primary-light);
-            color: var(--primary);
+        .alert-success {
+            background: rgba(16, 185, 129, 0.1);
+            border-left-color: var(--success);
+            color: var(--success);
         }
 
-        .badge-success {
-            background: #d1fae5;
-            color: #065f46;
+        .alert-warning {
+            background: rgba(245, 158, 11, 0.1);
+            border-left-color: var(--warning);
+            color: var(--warning);
         }
 
-        .badge-danger {
-            background: #fee2e2;
-            color: #991b1b;
+        .alert-error {
+            background: rgba(239, 68, 68, 0.1);
+            border-left-color: var(--danger);
+            color: var(--danger);
         }
 
-        /* ============ CHARTS ============ */
-        .chart-container {
-            position: relative;
-            height: 400px;
-            margin: 2rem 0;
-        }
-
-        .chart-small {
-            height: 300px;
-        }
-
-        /* ============ RESPONSIVE ============ */
-        @media (max-width: 768px) {
-            .header-container {
-                flex-direction: column;
-                gap: 1rem;
+        /* Print Styles */
+        @media print {
+            body {
+                background: white;
             }
-
-            .container {
-                padding: 0 1rem;
+            .card {
+                background: white;
+                color: black;
+                page-break-inside: avoid;
             }
-
-            .section {
-                padding: 1.5rem;
-            }
-
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-
-            .grid-2, .grid-3, .grid-4 {
-                grid-template-columns: 1fr;
-            }
-
-            .tabs {
-                gap: 0;
-                margin-bottom: 1rem;
-            }
-
-            .tab-button {
-                padding: 0.75rem 1rem;
-                font-size: 0.9rem;
-            }
-
-            .card-value {
-                font-size: 1.5rem;
-            }
-
-            table {
-                font-size: 0.875rem;
-            }
-
-            th, td {
-                padding: 0.75rem;
+            .header-actions, .form-actions, .tabs {
+                display: none;
             }
         }
-
-        /* ============ UTILITY CLASSES ============ */
-        .mt-2 { margin-top: 0.5rem; }
-        .mt-4 { margin-top: 1rem; }
-        .mb-2 { margin-bottom: 0.5rem; }
-        .mb-4 { margin-bottom: 1rem; }
-        .text-center { text-align: center; }
-        .text-muted { color: var(--text-secondary); }
-        .font-bold { font-weight: 700; }
-        .hidden { display: none; }
     </style>
 </head>
 <body>
-    <!-- ============ HEADER ============ -->
-    <header>
-        <div class="header-container">
-            <div class="logo">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path>
-                    <path d="M21 3v5h-5"></path>
-                    <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path>
-                    <path d="M3 21v-5h5"></path>
-                </svg>
-                Financial Analyzer
-            </div>
-            <button class="theme-toggle" id="themeToggle" title="Toggle dark mode">🌙</button>
-        </div>
-    </header>
-
-    <!-- ============ MAIN CONTENT ============ -->
     <div class="container">
-        <!-- ============ UPLOAD SECTION ============ -->
-        <div class="section">
-            <div class="section-title">
-                <span>📊</span>
-                Upload Financial Statements
+        <!-- Header -->
+        <header>
+            <div class="header-content">
+                <h1>Financial Analysis Studio</h1>
+                <p>Comprehensive financial statement analysis and ratio calculations</p>
             </div>
-
-            <div class="tabs">
-                <button class="tab-button active" onclick="switchTab('upload-files')">Upload Files</button>
-                <button class="tab-button" onclick="switchTab('manual-entry')">Manual Entry</button>
+            <div class="header-actions">
+                <button class="btn btn-secondary btn-sm" onclick="exportToJSON()">Export JSON</button>
+                <button class="btn btn-secondary btn-sm" onclick="exportToCSV()">Export CSV</button>
+                <button class="btn btn-secondary btn-sm" onclick="window.print()">Print</button>
             </div>
+        </header>
 
-            <!-- Tab: Upload Files -->
-            <div id="upload-files" class="tab-content active">
-                <div class="form-group">
-                    <label>Analysis Period (Years)</label>
-                    <select id="analysisPeriod">
-                        <option value="1">1 Year</option>
-                        <option value="2">2 Years</option>
-                        <option value="3">3 Years</option>
-                        <option value="4">4 Years</option>
-                        <option value="5" selected>5 Years</option>
-                    </select>
-                </div>
+        <!-- Tab Navigation -->
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('input')">Enter Data</button>
+            <button class="tab-btn" onclick="switchTab('analysis')">Analysis & Ratios</button>
+            <button class="tab-btn" onclick="switchTab('insights')">AI Insights</button>
+        </div>
 
+        <!-- INPUT TAB -->
+        <div id="input-tab" class="analysis-section active">
+            <div class="card">
+                <h2><span class="card-icon">⚙️</span> Configuration</h2>
+                
                 <div class="form-group">
                     <label>Company Name</label>
-                    <input type="text" id="companyName" placeholder="e.g., Union Assurance" value="Union Assurance">
+                    <input type="text" id="companyName" placeholder="Enter company name" value="ABC Insurance Ltd">
                 </div>
 
-                <div class="file-upload" onclick="document.getElementById('fileInput').click()">
-                    <input type="file" id="fileInput" multiple accept=".pdf,.xlsx,.xls,.csv" onchange="handleFiles(event)">
-                    <div class="file-upload-text">
-                        <p class="large">📁</p>
-                        <p><strong>Click to upload or drag and drop</strong></p>
-                        <p style="color: var(--text-secondary);">PDF, Excel (.xlsx), or CSV files</p>
-                    </div>
-                </div>
-
-                <div id="fileList" class="file-list hidden">
-                    <h3 style="margin-bottom: 1rem;">Uploaded Files:</h3>
-                    <div id="fileListContainer"></div>
-                </div>
-
-                <div id="uploadStatus" class="mt-4"></div>
-
-                <div class="button-group">
-                    <button class="btn btn-primary" onclick="processFiles()">
-                        <span>⚙️</span> Process Files
-                    </button>
-                    <button class="btn btn-secondary" onclick="clearFiles()">
-                        <span>🗑️</span> Clear Files
-                    </button>
-                </div>
-            </div>
-
-            <!-- Tab: Manual Entry -->
-            <div id="manual-entry" class="tab-content">
-                <div class="alert alert-info">
-                    <span class="alert-icon">ℹ️</span>
-                    <div>
-                        <strong>Optional:</strong> Enter or correct financial data manually. This is useful if PDF parsing misses some figures or you want to refine the data.
-                    </div>
-                </div>
-
-                <form id="manualEntryForm" onsubmit="handleManualEntry(event)">
+                <div class="form-grid">
                     <div class="form-group">
-                        <label>Year</label>
-                        <input type="number" id="manualYear" placeholder="e.g., 2024" min="1900" max="2100">
-                    </div>
-
-                    <div style="margin-bottom: 2rem;">
-                        <h3 style="margin-bottom: 1rem;">Balance Sheet (Statement of Financial Position)</h3>
-                        <div class="grid-2">
-                            <div class="form-group">
-                                <label>Total Assets</label>
-                                <input type="number" id="manualTotalAssets" placeholder="Enter amount" step="any">
-                            </div>
-                            <div class="form-group">
-                                <label>Total Liabilities</label>
-                                <input type="number" id="manualTotalLiabilities" placeholder="Enter amount" step="any">
-                            </div>
-                            <div class="form-group">
-                                <label>Current Assets</label>
-                                <input type="number" id="manualCurrentAssets" placeholder="Enter amount" step="any">
-                            </div>
-                            <div class="form-group">
-                                <label>Current Liabilities</label>
-                                <input type="number" id="manualCurrentLiabilities" placeholder="Enter amount" step="any">
-                            </div>
-                            <div class="form-group">
-                                <label>Inventory</label>
-                                <input type="number" id="manualInventory" placeholder="Enter amount" step="any">
-                            </div>
-                            <div class="form-group">
-                                <label>Equity / Shareholders' Funds</label>
-                                <input type="number" id="manualEquity" placeholder="Enter amount" step="any">
-                            </div>
-                        </div>
-                    </div>
-
-                    <div style="margin-bottom: 2rem;">
-                        <h3 style="margin-bottom: 1rem;">Income Statement</h3>
-                        <div class="grid-2">
-                            <div class="form-group">
-                                <label>Revenue / Sales</label>
-                                <input type="number" id="manualRevenue" placeholder="Enter amount" step="any">
-                            </div>
-                            <div class="form-group">
-                                <label>Cost of Goods Sold (COGS)</label>
-                                <input type="number" id="manualCOGS" placeholder="Enter amount" step="any">
-                            </div>
-                            <div class="form-group">
-                                <label>Gross Profit</label>
-                                <input type="number" id="manualGrossProfit" placeholder="Enter amount" step="any">
-                            </div>
-                            <div class="form-group">
-                                <label>Operating Expenses</label>
-                                <input type="number" id="manualOpEx" placeholder="Enter amount" step="any">
-                            </div>
-                            <div class="form-group">
-                                <label>Operating Income / EBIT</label>
-                                <input type="number" id="manualEBIT" placeholder="Enter amount" step="any">
-                            </div>
-                            <div class="form-group">
-                                <label>Net Income / Profit</label>
-                                <input type="number" id="manualNetIncome" placeholder="Enter amount" step="any">
-                            </div>
-                        </div>
-                    </div>
-
-                    <div style="margin-bottom: 2rem;">
-                        <h3 style="margin-bottom: 1rem;">Cash Flow Statement (Optional)</h3>
-                        <div class="grid-2">
-                            <div class="form-group">
-                                <label>Operating Cash Flow</label>
-                                <input type="number" id="manualOCF" placeholder="Enter amount" step="any">
-                            </div>
-                            <div class="form-group">
-                                <label>Free Cash Flow</label>
-                                <input type="number" id="manualFCF" placeholder="Enter amount" step="any">
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="button-group">
-                        <button type="submit" class="btn btn-primary">
-                            <span>💾</span> Save Data Entry
-                        </button>
-                        <button type="button" class="btn btn-secondary" onclick="clearManualForm()">
-                            <span>🔄</span> Clear Form
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <!-- ============ ANALYSIS RESULTS ============ -->
-        <div id="resultsSection" class="hidden">
-            <!-- Key Metrics Overview -->
-            <div class="section">
-                <div class="section-title">
-                    <span>📈</span>
-                    Key Financial Metrics (Latest Year)
-                </div>
-                <div id="keyMetricsContainer" class="grid-4"></div>
-            </div>
-
-            <!-- Financial Ratios -->
-            <div class="section">
-                <div class="section-title">
-                    <span>📊</span>
-                    Financial Ratios Analysis
-                </div>
-
-                <div class="tabs">
-                    <button class="tab-button active" onclick="switchRatioTab('liquidity')">Liquidity</button>
-                    <button class="tab-button" onclick="switchRatioTab('profitability')">Profitability</button>
-                    <button class="tab-button" onclick="switchRatioTab('solvency')">Solvency</button>
-                    <button class="tab-button" onclick="switchRatioTab('efficiency')">Efficiency</button>
-                </div>
-
-                <div id="liquidity" class="tab-content active">
-                    <div id="liquidityRatios" class="grid-2"></div>
-                </div>
-                <div id="profitability" class="tab-content">
-                    <div id="profitabilityRatios" class="grid-2"></div>
-                </div>
-                <div id="solvency" class="tab-content">
-                    <div id="solvencyRatios" class="grid-2"></div>
-                </div>
-                <div id="efficiency" class="tab-content">
-                    <div id="efficiencyRatios" class="grid-2"></div>
-                </div>
-            </div>
-
-            <!-- Trend Charts -->
-            <div class="section">
-                <div class="section-title">
-                    <span>📉</span>
-                    Trend Analysis
-                </div>
-                <div class="grid-2">
-                    <div class="chart-container">
-                        <canvas id="profitabilityTrendChart"></canvas>
-                    </div>
-                    <div class="chart-container">
-                        <canvas id="leverageTrendChart"></canvas>
-                    </div>
-                    <div class="chart-container">
-                        <canvas id="liquidityTrendChart"></canvas>
-                    </div>
-                    <div class="chart-container">
-                        <canvas id="efficiencyTrendChart"></canvas>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Detailed Ratio Table -->
-            <div class="section">
-                <div class="section-title">
-                    <span>📋</span>
-                    Detailed Ratio Comparison
-                </div>
-                <div class="table-container">
-                    <table id="ratioTable">
-                        <thead>
-                            <tr>
-                                <th>Ratio / Metric</th>
-                                <th>Industry Benchmark</th>
-                                <th id="yearCol1"></th>
-                                <th id="yearCol2" class="hidden"></th>
-                                <th id="yearCol3" class="hidden"></th>
-                                <th id="yearCol4" class="hidden"></th>
-                                <th id="yearCol5" class="hidden"></th>
-                            </tr>
-                        </thead>
-                        <tbody id="ratioTableBody"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- AI Insights -->
-            <div class="section">
-                <div class="section-title">
-                    <span>🤖</span>
-                    AI-Powered Financial Insights
-                </div>
-
-                <div class="form-group">
-                    <label>AI Provider (Optional - Built-in Analysis Enabled)</label>
-                    <div class="grid-2" style="margin-bottom: 1rem;">
-                        <input type="text" id="apiKey" placeholder="Your OpenAI / Grok API Key (optional)">
-                        <select id="aiProvider">
-                            <option value="builtin">Built-in Analysis (Free)</option>
-                            <option value="openai">OpenAI GPT-4</option>
-                            <option value="grok">Grok (xAI)</option>
-                            <option value="claude">Claude (Anthropic)</option>
+                        <label>Analysis Period</label>
+                        <select id="analysisPeriod" onchange="updateYearBadges()">
+                            <option value="1">1 Year</option>
+                            <option value="2">2 Years</option>
+                            <option value="3">3 Years</option>
+                            <option value="4">4 Years</option>
+                            <option value="5" selected>5 Years</option>
                         </select>
                     </div>
+                    <div class="form-group">
+                        <label>Base Year</label>
+                        <input type="number" id="baseYear" placeholder="2024" value="2024">
+                    </div>
                 </div>
 
-                <div class="button-group">
-                    <button class="btn btn-primary" onclick="generateAIInsights()">
-                        <span>✨</span> Generate Insights
-                    </button>
-                </div>
-
-                <div id="aiInsightsContainer" class="mt-4"></div>
+                <div id="years-container"></div>
             </div>
 
-            <!-- Export Options -->
-            <div class="section">
-                <div class="section-title">
-                    <span>📥</span>
-                    Export Results
-                </div>
-                <div class="button-group">
-                    <button class="btn btn-secondary" onclick="exportAsJSON()">
-                        <span>📄</span> Export as JSON
-                    </button>
-                    <button class="btn btn-secondary" onclick="exportAsCSV()">
-                        <span>📊</span> Export as CSV
-                    </button>
-                    <button class="btn btn-secondary" onclick="window.print()">
-                        <span>🖨️</span> Print Report
-                    </button>
-                </div>
+            <!-- Income Statement -->
+            <div class="card" style="margin-top: 24px;">
+                <h2><span class="card-icon">📊</span> Income Statement</h2>
+                <div id="income-statement-inputs"></div>
+            </div>
+
+            <!-- Balance Sheet -->
+            <div class="card" style="margin-top: 24px;">
+                <h2><span class="card-icon">📋</span> Balance Sheet (Statement of Financial Position)</h2>
+                <div id="balance-sheet-inputs"></div>
+            </div>
+
+            <!-- Cash Flow Statement -->
+            <div class="card" style="margin-top: 24px;">
+                <h2><span class="card-icon">💰</span> Cash Flow Statement</h2>
+                <div id="cash-flow-inputs"></div>
+            </div>
+
+            <div style="margin-top: 24px;">
+                <button class="btn btn-primary" onclick="analyzeData()">
+                    <span>📈</span> Analyze Financial Data
+                </button>
+                <button class="btn btn-secondary" onclick="resetForm()" style="margin-left: 12px;">Reset</button>
             </div>
         </div>
+
+        <!-- ANALYSIS TAB -->
+        <div id="analysis-tab" class="analysis-section">
+            <div class="card">
+                <h2><span class="card-icon">📊</span> Financial Ratios Analysis</h2>
+                <p style="color: var(--text-secondary); margin-bottom: 24px; font-size: 13px;">
+                    Select a year to view detailed ratio analysis, trends, and performance metrics.
+                </p>
+                <div class="year-selector" id="year-selector"></div>
+                <div id="ratio-content"></div>
+            </div>
+        </div>
+
+        <!-- INSIGHTS TAB -->
+        <div id="insights-tab" class="analysis-section">
+            <div class="card">
+                <h2><span class="card-icon">🤖</span> AI-Powered Financial Insights</h2>
+                <div id="insights-content"></div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer>
+            <p>Financial Statement Analyzer | 100% Client-Side Analysis | No Data Stored</p>
+        </footer>
     </div>
 
-    <!-- ============ JAVASCRIPT ============ -->
     <script>
-        // ============ STATE MANAGEMENT ============
-        let uploadedFiles = [];
-        let analysisData = {
-            companyName: 'Union Assurance',
+        // ============================================
+        // DATA STORAGE & MANAGEMENT
+        // ============================================
+        let financialData = {
+            company: 'ABC Insurance Ltd',
             period: 5,
+            baseYear: 2024,
             years: [],
-            financialData: {},
-            ratios: {}
+            incomeStatement: {},
+            balanceSheet: {},
+            cashFlow: {}
         };
 
-        // ============ UI FUNCTIONS ============
-        function switchTab(tabName) {
-            document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            document.getElementById(tabName).classList.add('active');
+        // ============================================
+        // FIELD DEFINITIONS
+        // ============================================
+        const incomeStatementFields = [
+            { id: 'revenue', label: 'Revenue / Premium Income', placeholder: '1000000' },
+            { id: 'operatingExpenses', label: 'Operating Expenses', placeholder: '300000' },
+            { id: 'depreciation', label: 'Depreciation & Amortization', placeholder: '50000' },
+            { id: 'operatingIncome', label: 'Operating Income (EBIT)', placeholder: '650000' },
+            { id: 'interestExpense', label: 'Interest Expense', placeholder: '20000' },
+            { id: 'taxExpense', label: 'Tax Expense', placeholder: '130000' },
+            { id: 'netIncome', label: 'Net Income', placeholder: '500000' }
+        ];
 
-            document.querySelectorAll('.tab-button').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            event.target.classList.add('active');
-        }
+        const balanceSheetFields = [
+            { id: 'cash', label: 'Cash & Equivalents', placeholder: '250000' },
+            { id: 'accountsReceivable', label: 'Accounts Receivable', placeholder: '150000' },
+            { id: 'inventory', label: 'Inventory', placeholder: '100000' },
+            { id: 'currentAssets', label: 'Total Current Assets', placeholder: '500000' },
+            { id: 'ppE', label: 'Property, Plant & Equipment', placeholder: '800000' },
+            { id: 'totalAssets', label: 'Total Assets', placeholder: '1500000' },
+            { id: 'accountsPayable', label: 'Accounts Payable', placeholder: '80000' },
+            { id: 'currentLiabilities', label: 'Total Current Liabilities', placeholder: '200000' },
+            { id: 'longTermDebt', label: 'Long-Term Debt', placeholder: '300000' },
+            { id: 'totalLiabilities', label: 'Total Liabilities', placeholder: '500000' },
+            { id: 'equity', label: 'Shareholders\' Equity', placeholder: '1000000' }
+        ];
 
-        function switchRatioTab(ratioType) {
-            document.querySelectorAll('#liquidity, #profitability, #solvency, #efficiency').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            document.getElementById(ratioType).classList.add('active');
+        const cashFlowFields = [
+            { id: 'operatingCashFlow', label: 'Operating Cash Flow', placeholder: '600000' },
+            { id: 'investingCashFlow', label: 'Investing Cash Flow', placeholder: '-200000' },
+            { id: 'financingCashFlow', label: 'Financing Cash Flow', placeholder: '-100000' },
+            { id: 'netCashFlow', label: 'Net Cash Flow', placeholder: '300000' },
+            { id: 'freeCashFlow', label: 'Free Cash Flow', placeholder: '400000' }
+        ];
 
-            document.querySelectorAll('.tabs .tab-button').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            event.target.classList.add('active');
-        }
+        // ============================================
+        // UI INITIALIZATION
+        // ============================================
+        function updateYearBadges() {
+            const period = parseInt(document.getElementById('analysisPeriod').value);
+            const baseYear = parseInt(document.getElementById('baseYear').value);
+            financialData.period = period;
+            financialData.baseYear = baseYear;
 
-        function showAlert(message, type = 'info') {
-            const alertClass = `alert alert-${type}`;
-            const icons = { info: 'ℹ️', success: '✅', warning: '⚠️', danger: '❌' };
-            
-            const alertHTML = `
-                <div class="${alertClass}">
-                    <span class="alert-icon">${icons[type]}</span>
-                    <div>${message}</div>
-                </div>
-            `;
-            
-            const uploadStatus = document.getElementById('uploadStatus');
-            uploadStatus.innerHTML += alertHTML;
-            
-            setTimeout(() => {
-                uploadStatus.innerHTML = '';
-            }, 5000);
-        }
-
-        // ============ FILE UPLOAD ============
-        function handleFiles(event) {
-            const files = event.target.files;
-            uploadedFiles = Array.from(files);
-
-            const fileListContainer = document.getElementById('fileListContainer');
-            fileListContainer.innerHTML = '';
-
-            uploadedFiles.forEach(file => {
-                const fileItem = document.createElement('div');
-                fileItem.className = 'file-item';
-                fileItem.innerHTML = `
-                    <div>
-                        <div class="file-item-name">📄 ${file.name}</div>
-                        <div class="file-item-size">${(file.size / 1024).toFixed(2)} KB</div>
-                    </div>
-                    <button class="btn btn-sm btn-danger" onclick="removeFile('${file.name}')">Remove</button>
-                `;
-                fileListContainer.appendChild(fileItem);
-            });
-
-            document.getElementById('fileList').classList.remove('hidden');
-            analysisData.companyName = document.getElementById('companyName').value;
-            analysisData.period = parseInt(document.getElementById('analysisPeriod').value);
-        }
-
-        function removeFile(fileName) {
-            uploadedFiles = uploadedFiles.filter(f => f.name !== fileName);
-            if (uploadedFiles.length === 0) {
-                document.getElementById('fileList').classList.add('hidden');
-            } else {
-                handleFiles({ target: { files: uploadedFiles } });
-            }
-        }
-
-        function clearFiles() {
-            uploadedFiles = [];
-            document.getElementById('fileInput').value = '';
-            document.getElementById('fileList').classList.add('hidden');
-            document.getElementById('fileListContainer').innerHTML = '';
-            showAlert('Files cleared', 'success');
-        }
-
-        // ============ PDF PARSING ============
-        async function extractTextFromPDF(file) {
-            const arrayBuffer = await file.arrayBuffer();
-            const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-            let fullText = '';
-
-            for (let i = 1; i <= Math.min(pdf.numPages, 10); i++) {
-                const page = await pdf.getPage(i);
-                const textContent = await page.getTextContent();
-                fullText += textContent.items.map(item => item.str).join(' ') + '\n';
-            }
-
-            return fullText;
-        }
-
-        // ============ INTELLIGENT DATA EXTRACTION ============
-        function extractFinancialData(text) {
-            const data = {};
-
-            // Field name mappings for different PDF formats
-            const fieldMappings = {
-                totalAssets: ['total assets', 'assets total', 'total asset'],
-                totalLiabilities: ['total liabilities', 'liabilities total', 'total liability'],
-                currentAssets: ['current assets', 'assets current'],
-                currentLiabilities: ['current liabilities', 'liabilities current'],
-                equity: ['total equity', 'equity total', 'shareholders equity', 'stated capital', 'total shareholders funds'],
-                revenue: ['gross written premium', 'net written premium', 'revenue', 'sales', 'total revenue'],
-                netIncome: ['profit for the year', 'net income', 'net profit', 'earnings'],
-                operatingIncome: ['profit from operations', 'operating income', 'ebit'],
-            };
-
-            const lines = text.split('\n');
-            
-            for (const [key, searchTerms] of Object.entries(fieldMappings)) {
-                for (const line of lines) {
-                    const lowerLine = line.toLowerCase();
-                    for (const term of searchTerms) {
-                        if (lowerLine.includes(term)) {
-                            const numbers = line.match(/[\d,]+\.?\d*/g);
-                            if (numbers) {
-                                const value = parseFloat(numbers[numbers.length - 1].replace(/,/g, ''));
-                                if (!isNaN(value)) {
-                                    data[key] = value;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                    if (data[key]) break;
-                }
-            }
-
-            return data;
-        }
-
-        // ============ EXCEL/CSV PARSING ============
-        function parseExcelFile(file) {
-            return new Promise((resolve) => {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    const data = new Uint8Array(e.target.result);
-                    const workbook = XLSX.read(data, { type: 'array' });
-                    const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-                    const jsonData = XLSX.utils.sheet_to_json(worksheet);
-                    resolve(jsonData);
-                };
-                reader.readAsArrayBuffer(file);
-            });
-        }
-
-        function parseCSVFile(file) {
-            return new Promise((resolve) => {
-                Papa.parse(file, {
-                    complete: (results) => {
-                        resolve(results.data);
-                    }
-                });
-            });
-        }
-
-        // ============ PROCESS FILES ============
-        async function processFiles() {
-            if (uploadedFiles.length === 0) {
-                showAlert('Please upload at least one file', 'warning');
-                return;
-            }
-
-            document.getElementById('uploadStatus').innerHTML = '<div class="loading-text"><div class="loading"></div> Processing files...</div>';
-
-            try {
-                analysisData.financialData = {};
-
-                for (const file of uploadedFiles) {
-                    let data = {};
-
-                    if (file.type === 'application/pdf') {
-                        const text = await extractTextFromPDF(file);
-                        data = extractFinancialData(text);
-                    } else if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
-                        const jsonData = await parseExcelFile(file);
-                        data = flattenData(jsonData);
-                    } else if (file.type === 'text/csv' || file.name.endsWith('.csv')) {
-                        const csvData = await parseCSVFile(file);
-                        data = flattenData(csvData);
-                    }
-
-                    Object.assign(analysisData.financialData, data);
-                }
-
-                // Generate years array
-                analysisData.years = generateYearsArray(analysisData.period);
-
-                showAlert('Files processed successfully!', 'success');
-                displayResults();
-                document.getElementById('resultsSection').classList.remove('hidden');
-            } catch (error) {
-                showAlert(`Error processing files: ${error.message}`, 'danger');
-            }
-
-            document.getElementById('uploadStatus').innerHTML = '';
-        }
-
-        function flattenData(data) {
-            const flattened = {};
-            if (Array.isArray(data)) {
-                data.forEach((row, idx) => {
-                    for (const [key, value] of Object.entries(row)) {
-                        flattened[`${key}_${idx}`] = value;
-                    }
-                });
-            }
-            return flattened;
-        }
-
-        function generateYearsArray(period) {
-            const current = new Date().getFullYear();
-            const years = [];
+            // Update years array
+            financialData.years = [];
             for (let i = period - 1; i >= 0; i--) {
-                years.push(current - i);
+                financialData.years.push(baseYear - i);
             }
-            return years;
+
+            // Create year selector
+            const yearsContainer = document.getElementById('years-container');
+            yearsContainer.innerHTML = '<label style="margin-bottom: 12px;">Years</label><div class="year-selector">' + 
+                financialData.years.map(year => 
+                    `<span class="year-badge active">${year}</span>`
+                ).join('') + '</div>';
+
+            // Generate input fields
+            generateInputFields();
         }
 
-        // ============ MANUAL ENTRY ============
-        function handleManualEntry(event) {
-            event.preventDefault();
+        function generateInputFields() {
+            // Income Statement
+            let incomeHTML = '<div class="form-grid full">';
+            incomeStatementFields.forEach(field => {
+                incomeHTML += `
+                    <div class="form-group">
+                        <label>${field.label}</label>
+                        <div style="display: grid; grid-template-columns: repeat(${financialData.period}, 1fr); gap: 8px;">
+                            ${financialData.years.map(year => 
+                                `<input type="number" placeholder="${field.label}" 
+                                    data-field="income" data-item="${field.id}" data-year="${year}" 
+                                    class="financial-input">`
+                            ).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+            incomeHTML += '</div>';
+            document.getElementById('income-statement-inputs').innerHTML = incomeHTML;
 
-            const year = parseInt(document.getElementById('manualYear').value);
-            if (!year) {
-                showAlert('Please enter a year', 'warning');
+            // Balance Sheet
+            let balanceHTML = '<div class="form-grid full">';
+            balanceSheetFields.forEach(field => {
+                balanceHTML += `
+                    <div class="form-group">
+                        <label>${field.label}</label>
+                        <div style="display: grid; grid-template-columns: repeat(${financialData.period}, 1fr); gap: 8px;">
+                            ${financialData.years.map(year => 
+                                `<input type="number" placeholder="${field.label}" 
+                                    data-field="balance" data-item="${field.id}" data-year="${year}" 
+                                    class="financial-input">`
+                            ).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+            balanceHTML += '</div>';
+            document.getElementById('balance-sheet-inputs').innerHTML = balanceHTML;
+
+            // Cash Flow
+            let cashFlowHTML = '<div class="form-grid full">';
+            cashFlowFields.forEach(field => {
+                cashFlowHTML += `
+                    <div class="form-group">
+                        <label>${field.label}</label>
+                        <div style="display: grid; grid-template-columns: repeat(${financialData.period}, 1fr); gap: 8px;">
+                            ${financialData.years.map(year => 
+                                `<input type="number" placeholder="${field.label}" 
+                                    data-field="cashflow" data-item="${field.id}" data-year="${year}" 
+                                    class="financial-input">`
+                            ).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+            cashFlowHTML += '</div>';
+            document.getElementById('cash-flow-inputs').innerHTML = cashFlowHTML;
+        }
+
+        // ============================================
+        // DATA COLLECTION & ANALYSIS
+        // ============================================
+        function analyzeData() {
+            // Collect data from inputs
+            financialData.company = document.getElementById('companyName').value || 'Company';
+            const inputs = document.querySelectorAll('.financial-input');
+            
+            financialData.incomeStatement = {};
+            financialData.balanceSheet = {};
+            financialData.cashFlow = {};
+
+            inputs.forEach(input => {
+                const year = input.dataset.year;
+                const field = input.dataset.field;
+                const item = input.dataset.item;
+                const value = parseFloat(input.value) || 0;
+
+                if (field === 'income') {
+                    if (!financialData.incomeStatement[year]) financialData.incomeStatement[year] = {};
+                    financialData.incomeStatement[year][item] = value;
+                } else if (field === 'balance') {
+                    if (!financialData.balanceSheet[year]) financialData.balanceSheet[year] = {};
+                    financialData.balanceSheet[year][item] = value;
+                } else if (field === 'cashflow') {
+                    if (!financialData.cashFlow[year]) financialData.cashFlow[year] = {};
+                    financialData.cashFlow[year][item] = value;
+                }
+            });
+
+            // Validate data
+            if (Object.keys(financialData.incomeStatement).length === 0) {
+                alert('Please enter at least one year of financial data');
                 return;
             }
 
-            const data = {
-                year,
-                totalAssets: parseFloat(document.getElementById('manualTotalAssets').value) || 0,
-                totalLiabilities: parseFloat(document.getElementById('manualTotalLiabilities').value) || 0,
-                currentAssets: parseFloat(document.getElementById('manualCurrentAssets').value) || 0,
-                currentLiabilities: parseFloat(document.getElementById('manualCurrentLiabilities').value) || 0,
-                inventory: parseFloat(document.getElementById('manualInventory').value) || 0,
-                equity: parseFloat(document.getElementById('manualEquity').value) || 0,
-                revenue: parseFloat(document.getElementById('manualRevenue').value) || 0,
-                cogs: parseFloat(document.getElementById('manualCOGS').value) || 0,
-                grossProfit: parseFloat(document.getElementById('manualGrossProfit').value) || 0,
-                opEx: parseFloat(document.getElementById('manualOpEx').value) || 0,
-                ebit: parseFloat(document.getElementById('manualEBIT').value) || 0,
-                netIncome: parseFloat(document.getElementById('manualNetIncome').value) || 0,
-                ocf: parseFloat(document.getElementById('manualOCF').value) || 0,
-                fcf: parseFloat(document.getElementById('manualFCF').value) || 0,
-            };
-
-            analysisData.financialData[`year_${year}`] = data;
-            
-            if (!analysisData.years.includes(year)) {
-                analysisData.years.push(year);
-                analysisData.years.sort((a, b) => a - b);
-            }
-
-            showAlert(`Data for year ${year} saved successfully!`, 'success');
-            clearManualForm();
-            
-            if (Object.keys(analysisData.financialData).length > 0) {
-                displayResults();
-                document.getElementById('resultsSection').classList.remove('hidden');
-            }
+            // Switch to analysis tab
+            switchTab('analysis');
+            renderAnalysis();
         }
 
-        function clearManualForm() {
-            document.getElementById('manualEntryForm').reset();
-        }
+        // ============================================
+        // RATIO CALCULATIONS
+        // ============================================
+        function calculateRatios(year) {
+            const income = financialData.incomeStatement[year] || {};
+            const balance = financialData.balanceSheet[year] || {};
+            const cashFlow = financialData.cashFlow[year] || {};
 
-        // ============ RATIO CALCULATIONS ============
-        function calculateRatios() {
             const ratios = {};
 
-            for (const year of analysisData.years) {
-                const data = findDataForYear(year);
-                if (!data) continue;
+            // Liquidity Ratios
+            ratios.currentRatio = balance.currentAssets / balance.currentLiabilities || 0;
+            ratios.quickRatio = (balance.currentAssets - balance.inventory) / balance.currentLiabilities || 0;
+            ratios.cashRatio = balance.cash / balance.currentLiabilities || 0;
 
-                ratios[year] = {
-                    // Liquidity Ratios
-                    currentRatio: data.currentAssets / data.currentLiabilities || 0,
-                    quickRatio: (data.currentAssets - data.inventory) / data.currentLiabilities || 0,
-                    cashRatio: (data.cash || data.currentAssets * 0.2) / data.currentLiabilities || 0,
+            // Profitability Ratios
+            ratios.netProfitMargin = (income.netIncome / income.revenue) * 100 || 0;
+            ratios.roa = (income.netIncome / balance.totalAssets) * 100 || 0;
+            ratios.roe = (income.netIncome / balance.equity) * 100 || 0;
+            ratios.operatingMargin = (income.operatingIncome / income.revenue) * 100 || 0;
 
-                    // Profitability Ratios
-                    netProfitMargin: (data.netIncome / data.revenue) * 100 || 0,
-                    grossProfitMargin: (data.grossProfit / data.revenue) * 100 || 0,
-                    roe: (data.netIncome / data.equity) * 100 || 0,
-                    roa: (data.netIncome / data.totalAssets) * 100 || 0,
+            // Solvency Ratios
+            ratios.debtToEquity = balance.totalLiabilities / balance.equity || 0;
+            ratios.debtToAssets = balance.totalLiabilities / balance.totalAssets || 0;
+            ratios.equityRatio = balance.equity / balance.totalAssets || 0;
+            ratios.interestCoverage = income.operatingIncome / income.interestExpense || 0;
 
-                    // Solvency Ratios
-                    debtToEquity: data.totalLiabilities / data.equity || 0,
-                    debtRatio: (data.totalLiabilities / data.totalAssets) * 100 || 0,
-                    equityRatio: (data.equity / data.totalAssets) * 100 || 0,
-                    interestCoverage: data.ebit / (data.totalLiabilities * 0.05) || 0,
+            // Efficiency Ratios
+            ratios.assetTurnover = income.revenue / balance.totalAssets || 0;
+            ratios.receivablesTurnover = income.revenue / balance.accountsReceivable || 0;
+            ratios.inventoryTurnover = income.revenue / balance.inventory || 0;
 
-                    // Efficiency Ratios
-                    assetTurnover: data.revenue / data.totalAssets || 0,
-                    roe: (data.netIncome / data.equity) * 100 || 0,
-                };
-            }
+            // Cash Flow Ratios
+            ratios.operatingCashFlowRatio = cashFlow.operatingCashFlow / balance.currentLiabilities || 0;
+            ratios.freeCashFlow = cashFlow.freeCashFlow || 0;
+            ratios.cashFlowMargin = (cashFlow.operatingCashFlow / income.revenue) * 100 || 0;
 
             return ratios;
         }
 
-        function findDataForYear(year) {
-            for (const [key, value] of Object.entries(analysisData.financialData)) {
-                if (key.includes(year.toString()) || (typeof value === 'object' && value.year === year)) {
-                    return value;
-                }
-            }
-            
-            // Fallback: use any available data if exact year not found
-            const firstData = Object.values(analysisData.financialData).find(v => typeof v === 'object' && v.totalAssets);
-            return firstData || {
-                totalAssets: 100000,
-                totalLiabilities: 50000,
-                currentAssets: 40000,
-                currentLiabilities: 20000,
-                equity: 50000,
-                revenue: 150000,
-                netIncome: 15000,
-                grossProfit: 45000,
-                ebit: 20000,
-            };
+        // ============================================
+        // TREND ANALYSIS
+        // ============================================
+        function calculateTrend(metric) {
+            const years = financialData.years;
+            const values = years.map(year => {
+                const ratios = calculateRatios(year);
+                return ratios[metric] || 0;
+            });
+
+            if (values.length < 2) return 0;
+            const recent = values[values.length - 1];
+            const previous = values[values.length - 2];
+            const change = ((recent - previous) / Math.abs(previous)) * 100;
+            return isFinite(change) ? change : 0;
         }
 
-        // ============ DISPLAY RESULTS ============
-        function displayResults() {
-            analysisData.ratios = calculateRatios();
+        // ============================================
+        // RENDERING
+        // ============================================
+        function renderAnalysis() {
+            const yearSelector = document.getElementById('year-selector');
+            yearSelector.innerHTML = financialData.years.map((year, index) => 
+                `<span class="year-badge ${index === financialData.years.length - 1 ? 'active' : ''}" 
+                    onclick="selectYear(${year})">${year}</span>`
+            ).join('');
 
-            displayKeyMetrics();
-            displayRatios();
-            displayCharts();
-            displayRatioTable();
+            selectYear(financialData.years[financialData.years.length - 1]);
         }
 
-        function displayKeyMetrics() {
-            const latestYear = analysisData.years[analysisData.years.length - 1];
-            const data = findDataForYear(latestYear);
-            const ratios = analysisData.ratios[latestYear];
+        function selectYear(year) {
+            // Update active badge
+            document.querySelectorAll('#year-selector .year-badge').forEach(badge => {
+                badge.classList.remove('active');
+            });
+            event.target?.classList.add('active');
 
+            const ratios = calculateRatios(year);
+            const income = financialData.incomeStatement[year] || {};
+            const balance = financialData.balanceSheet[year] || {};
+
+            let html = '<div class="metrics-grid">';
+
+            // Display key metrics
             const metrics = [
-                { title: 'Total Assets', value: formatNumber(data.totalAssets), trend: '+5.2%', color: 'positive' },
-                { title: 'Total Liabilities', value: formatNumber(data.totalLiabilities), trend: '+2.1%', color: 'warning' },
-                { title: 'Net Income', value: formatNumber(data.netIncome), trend: '+8.3%', color: 'positive' },
-                { title: 'ROE', value: `${ratios.roe.toFixed(2)}%`, trend: '+12%', color: 'positive' },
+                { label: 'Current Ratio', value: ratios.currentRatio?.toFixed(2), unit: 'x' },
+                { label: 'Net Profit Margin', value: ratios.netProfitMargin?.toFixed(2), unit: '%' },
+                { label: 'ROA', value: ratios.roa?.toFixed(2), unit: '%' },
+                { label: 'ROE', value: ratios.roe?.toFixed(2), unit: '%' },
+                { label: 'Debt-to-Equity', value: ratios.debtToEquity?.toFixed(2), unit: 'x' },
+                { label: 'Asset Turnover', value: ratios.assetTurnover?.toFixed(2), unit: 'x' }
             ];
 
-            const container = document.getElementById('keyMetricsContainer');
-            container.innerHTML = metrics.map(m => `
-                <div class="card ${m.color}">
-                    <div class="card-title">${m.title}</div>
-                    <div class="card-value">Rs. ${m.value}</div>
-                    <div class="card-subtext">↑ ${m.trend}</div>
+            metrics.forEach(metric => {
+                const trend = calculateTrend(Object.keys(ratios).find(k => ratios[k] === parseFloat(metric.value)));
+                html += `
+                    <div class="metric-card">
+                        <div class="metric-label">${metric.label}</div>
+                        <div class="metric-value">${metric.value} ${metric.unit}</div>
+                        <div class="metric-change ${trend > 0 ? '' : 'negative'}">
+                            ${trend > 0 ? '↑' : '↓'} ${Math.abs(trend).toFixed(1)}%
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += '</div>';
+
+            // Ratio tables
+            html += `
+                <h3 style="margin-top: 30px; margin-bottom: 16px; font-size: 16px; font-weight: 600;">Detailed Ratios</h3>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>Ratio</th>
+                                <th>Value</th>
+                                <th>Interpretation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td rowspan="3"><strong>Liquidity</strong></td>
+                                <td>Current Ratio</td>
+                                <td>${ratios.currentRatio.toFixed(2)}</td>
+                                <td>${getInterpretation('currentRatio', ratios.currentRatio)}</td>
+                            </tr>
+                            <tr>
+                                <td>Quick Ratio</td>
+                                <td>${ratios.quickRatio.toFixed(2)}</td>
+                                <td>${getInterpretation('quickRatio', ratios.quickRatio)}</td>
+                            </tr>
+                            <tr>
+                                <td>Cash Ratio</td>
+                                <td>${ratios.cashRatio.toFixed(2)}</td>
+                                <td>Immediate liquidity position</td>
+                            </tr>
+                            <tr>
+                                <td rowspan="4"><strong>Profitability</strong></td>
+                                <td>Net Profit Margin</td>
+                                <td>${ratios.netProfitMargin.toFixed(2)}%</td>
+                                <td>${getInterpretation('netProfitMargin', ratios.netProfitMargin)}</td>
+                            </tr>
+                            <tr>
+                                <td>ROA</td>
+                                <td>${ratios.roa.toFixed(2)}%</td>
+                                <td>Asset efficiency in generating profit</td>
+                            </tr>
+                            <tr>
+                                <td>ROE</td>
+                                <td>${ratios.roe.toFixed(2)}%</td>
+                                <td>${getInterpretation('roe', ratios.roe)}</td>
+                            </tr>
+                            <tr>
+                                <td>Operating Margin</td>
+                                <td>${ratios.operatingMargin.toFixed(2)}%</td>
+                                <td>Operational efficiency</td>
+                            </tr>
+                            <tr>
+                                <td rowspan="3"><strong>Solvency</strong></td>
+                                <td>Debt-to-Equity</td>
+                                <td>${ratios.debtToEquity.toFixed(2)}</td>
+                                <td>${getInterpretation('debtToEquity', ratios.debtToEquity)}</td>
+                            </tr>
+                            <tr>
+                                <td>Debt-to-Assets</td>
+                                <td>${ratios.debtToAssets.toFixed(2)}</td>
+                                <td>Financial leverage position</td>
+                            </tr>
+                            <tr>
+                                <td>Interest Coverage</td>
+                                <td>${ratios.interestCoverage.toFixed(2)}x</td>
+                                <td>Ability to cover interest obligations</td>
+                            </tr>
+                            <tr>
+                                <td rowspan="3"><strong>Efficiency</strong></td>
+                                <td>Asset Turnover</td>
+                                <td>${ratios.assetTurnover.toFixed(2)}</td>
+                                <td>How effectively assets generate revenue</td>
+                            </tr>
+                            <tr>
+                                <td>Receivables Turnover</td>
+                                <td>${ratios.receivablesTurnover.toFixed(2)}</td>
+                                <td>Speed of collecting receivables</td>
+                            </tr>
+                            <tr>
+                                <td>Inventory Turnover</td>
+                                <td>${ratios.inventoryTurnover.toFixed(2)}</td>
+                                <td>Inventory management efficiency</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
-            `).join('');
+            `;
+
+            // Charts
+            html += '<h3 style="margin-top: 30px; margin-bottom: 16px; font-size: 16px; font-weight: 600;">Trend Analysis</h3>';
+            html += '<div class="main-grid"><div class="card"><div class="chart-container"><canvas id="trendChart"></canvas></div></div>';
+            html += '<div class="card"><div class="chart-container"><canvas id="profitChart"></canvas></div></div></div>';
+
+            document.getElementById('ratio-content').innerHTML = html;
+
+            // Draw charts
+            drawTrendChart();
+            drawProfitChart();
         }
 
-        function displayRatios() {
-            const ratios = analysisData.ratios[analysisData.years[analysisData.years.length - 1]];
+        function drawTrendChart() {
+            const ctx = document.getElementById('trendChart');
+            if (!ctx) return;
 
-            const liquidityRatios = [
-                { name: 'Current Ratio', value: ratios.currentRatio.toFixed(2), benchmark: '1.5', desc: 'Measures short-term liquidity' },
-                { name: 'Quick Ratio', value: ratios.quickRatio.toFixed(2), benchmark: '1.0', desc: 'Strict liquidity test' },
-                { name: 'Cash Ratio', value: ratios.cashRatio.toFixed(2), benchmark: '0.5', desc: 'Immediate liquidity' },
-            ];
+            const years = financialData.years;
+            const currentRatios = years.map(y => calculateRatios(y).currentRatio);
+            const debtToEquity = years.map(y => calculateRatios(y).debtToEquity);
+            const roe = years.map(y => calculateRatios(y).roe);
 
-            const profitabilityRatios = [
-                { name: 'Net Profit Margin', value: `${ratios.netProfitMargin.toFixed(2)}%`, benchmark: '10%', desc: 'Bottom line profitability' },
-                { name: 'Gross Profit Margin', value: `${ratios.grossProfitMargin.toFixed(2)}%`, benchmark: '30%', desc: 'Core profitability' },
-                { name: 'ROE', value: `${ratios.roe.toFixed(2)}%`, benchmark: '15%', desc: 'Return on equity' },
-                { name: 'ROA', value: `${ratios.roa.toFixed(2)}%`, benchmark: '8%', desc: 'Return on assets' },
-            ];
-
-            const solvencyRatios = [
-                { name: 'Debt-to-Equity', value: ratios.debtToEquity.toFixed(2), benchmark: '1.0', desc: 'Financial leverage' },
-                { name: 'Debt Ratio', value: `${ratios.debtRatio.toFixed(2)}%`, benchmark: '50%', desc: 'Assets financed by debt' },
-                { name: 'Equity Ratio', value: `${ratios.equityRatio.toFixed(2)}%`, benchmark: '50%', desc: 'Assets financed by equity' },
-            ];
-
-            const efficiencyRatios = [
-                { name: 'Asset Turnover', value: ratios.assetTurnover.toFixed(2), benchmark: '1.0', desc: 'Asset utilization' },
-                { name: 'ROE', value: `${ratios.roe.toFixed(2)}%`, benchmark: '15%', desc: 'Shareholder returns' },
-            ];
-
-            renderRatioCards('liquidityRatios', liquidityRatios);
-            renderRatioCards('profitabilityRatios', profitabilityRatios);
-            renderRatioCards('solvencyRatios', solvencyRatios);
-            renderRatioCards('efficiencyRatios', efficiencyRatios);
-        }
-
-        function renderRatioCards(containerId, ratios) {
-            const container = document.getElementById(containerId);
-            container.innerHTML = ratios.map(ratio => `
-                <div class="card">
-                    <div class="card-title">${ratio.name}</div>
-                    <div class="card-value">${ratio.value}</div>
-                    <div class="card-subtext">Benchmark: ${ratio.benchmark} • ${ratio.desc}</div>
-                </div>
-            `).join('');
-        }
-
-        // ============ CHARTS ============
-        function displayCharts() {
-            drawProfitabilityTrendChart();
-            drawLeverageTrendChart();
-            drawLiquidityTrendChart();
-            drawEfficiencyTrendChart();
-        }
-
-        function drawProfitabilityTrendChart() {
-            const years = analysisData.years;
-            const margins = years.map(y => analysisData.ratios[y]?.netProfitMargin || 0);
-
-            const ctx = document.getElementById('profitabilityTrendChart').getContext('2d');
             new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: years.map(y => y.toString()),
-                    datasets: [{
-                        label: 'Net Profit Margin (%)',
-                        data: margins,
-                        borderColor: '#0066cc',
-                        backgroundColor: '#e6f2ff',
-                        tension: 0.4,
-                        fill: true,
-                    }]
+                    labels: years,
+                    datasets: [
+                        {
+                            label: 'Current Ratio',
+                            data: currentRatios,
+                            borderColor: '#3b82f6',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        },
+                        {
+                            label: 'Debt-to-Equity',
+                            data: debtToEquity,
+                            borderColor: '#f59e0b',
+                            backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        },
+                        {
+                            label: 'ROE (%)',
+                            data: roe,
+                            borderColor: '#10b981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }
+                    ]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { display: false } }
+                    plugins: {
+                        legend: {
+                            labels: { color: '#cbd5e1', font: { size: 12 } }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            ticks: { color: '#cbd5e1' },
+                            grid: { color: 'rgba(59, 130, 246, 0.1)' }
+                        },
+                        x: {
+                            ticks: { color: '#cbd5e1' },
+                            grid: { display: false }
+                        }
+                    }
                 }
             });
         }
 
-        function drawLeverageTrendChart() {
-            const years = analysisData.years;
-            const leverage = years.map(y => analysisData.ratios[y]?.debtToEquity || 0);
+        function drawProfitChart() {
+            const ctx = document.getElementById('profitChart');
+            if (!ctx) return;
 
-            const ctx = document.getElementById('leverageTrendChart').getContext('2d');
+            const years = financialData.years;
+            const netMargin = years.map(y => calculateRatios(y).netProfitMargin);
+            const roa = years.map(y => calculateRatios(y).roa);
+            const roe = years.map(y => calculateRatios(y).roe);
+
             new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: years.map(y => y.toString()),
-                    datasets: [{
-                        label: 'Debt-to-Equity Ratio',
-                        data: leverage,
-                        backgroundColor: '#f59e0b',
-                    }]
+                    labels: years,
+                    datasets: [
+                        {
+                            label: 'Net Profit Margin (%)',
+                            data: netMargin,
+                            backgroundColor: 'rgba(59, 130, 246, 0.8)'
+                        },
+                        {
+                            label: 'ROA (%)',
+                            data: roa,
+                            backgroundColor: 'rgba(16, 185, 129, 0.8)'
+                        },
+                        {
+                            label: 'ROE (%)',
+                            data: roe,
+                            backgroundColor: 'rgba(245, 158, 11, 0.8)'
+                        }
+                    ]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { display: false } }
+                    plugins: {
+                        legend: {
+                            labels: { color: '#cbd5e1', font: { size: 12 } }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            ticks: { color: '#cbd5e1' },
+                            grid: { color: 'rgba(59, 130, 246, 0.1)' }
+                        },
+                        x: {
+                            ticks: { color: '#cbd5e1' },
+                            grid: { display: false }
+                        }
+                    }
                 }
             });
         }
 
-        function drawLiquidityTrendChart() {
-            const years = analysisData.years;
-            const liquidity = years.map(y => analysisData.ratios[y]?.currentRatio || 0);
-
-            const ctx = document.getElementById('liquidityTrendChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: years.map(y => y.toString()),
-                    datasets: [{
-                        label: 'Current Ratio',
-                        data: liquidity,
-                        borderColor: '#10b981',
-                        backgroundColor: '#d1fae5',
-                        tension: 0.4,
-                        fill: true,
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } }
-                }
-            });
+        function getInterpretation(ratio, value) {
+            const interpretations = {
+                currentRatio: value >= 1.5 ? '✓ Strong liquidity' : value >= 1 ? '~ Adequate liquidity' : '✗ Low liquidity',
+                quickRatio: value >= 1 ? '✓ Good immediate liquidity' : '~ Moderate liquidity position',
+                netProfitMargin: value >= 15 ? '✓ Excellent profitability' : value >= 5 ? '~ Good profitability' : '~ Standard profitability',
+                roe: value >= 15 ? '✓ Strong returns' : value >= 10 ? '~ Good returns' : '~ Acceptable returns',
+                debtToEquity: value < 1 ? '✓ Conservative leverage' : value < 2 ? '~ Moderate leverage' : '✗ High leverage'
+            };
+            return interpretations[ratio] || 'Monitor performance';
         }
 
-        function drawEfficiencyTrendChart() {
-            const years = analysisData.years;
-            const roe = years.map(y => analysisData.ratios[y]?.roe || 0);
+        // ============================================
+        // AI INSIGHTS (NO API KEY NEEDED)
+        // ============================================
+        function renderInsights() {
+            const latestYear = financialData.years[financialData.years.length - 1];
+            const prevYear = financialData.years.length > 1 ? financialData.years[financialData.years.length - 2] : null;
+            
+            const latestRatios = calculateRatios(latestYear);
+            const prevRatios = prevYear ? calculateRatios(prevYear) : null;
 
-            const ctx = document.getElementById('efficiencyTrendChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: years.map(y => y.toString()),
-                    datasets: [{
-                        label: 'Return on Equity (%)',
-                        data: roe,
-                        borderColor: '#ef4444',
-                        backgroundColor: '#fee2e2',
-                        tension: 0.4,
-                        fill: true,
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } }
-                }
-            });
+            let insights = generateAIInsights(latestRatios, prevRatios, latestYear);
+            document.getElementById('insights-content').innerHTML = insights;
         }
 
-        // ============ RATIO TABLE ============
-        function displayRatioTable() {
-            const ratios = analysisData.ratios;
-            const years = analysisData.years;
-
-            // Set year columns
-            years.forEach((year, idx) => {
-                const col = document.getElementById(`yearCol${idx + 1}`);
-                if (col) {
-                    col.textContent = year.toString();
-                    if (idx > 0) col.classList.remove('hidden');
-                }
-            });
-
-            const ratioDefinitions = [
-                { name: 'Current Ratio', key: 'currentRatio', benchmark: '1.5' },
-                { name: 'Quick Ratio', key: 'quickRatio', benchmark: '1.0' },
-                { name: 'Net Profit Margin (%)', key: 'netProfitMargin', benchmark: '10%' },
-                { name: 'ROE (%)', key: 'roe', benchmark: '15%' },
-                { name: 'ROA (%)', key: 'roa', benchmark: '8%' },
-                { name: 'Debt-to-Equity', key: 'debtToEquity', benchmark: '1.0' },
-                { name: 'Asset Turnover', key: 'assetTurnover', benchmark: '1.0' },
-            ];
-
-            const tbody = document.getElementById('ratioTableBody');
-            tbody.innerHTML = ratioDefinitions.map(ratio => {
-                const cells = [
-                    `<td>${ratio.name}</td>`,
-                    `<td><span class="badge badge-primary">${ratio.benchmark}</span></td>`,
-                    ...years.map(year => {
-                        const value = ratios[year]?.[ratio.key] || 0;
-                        return `<td>${value.toFixed(2)}</td>`;
-                    })
-                ].join('');
-
-                return `<tr>${cells}</tr>`;
-            }).join('');
-        }
-
-        // ============ AI INSIGHTS ============
-        async function generateAIInsights() {
-            const apiKey = document.getElementById('apiKey').value;
-            const provider = document.getElementById('aiProvider').value;
-            const container = document.getElementById('aiInsightsContainer');
-
-            if (provider === 'builtin' || !apiKey) {
-                generateBuiltInInsights(container);
-            } else {
-                await generateAPIInsights(apiKey, provider, container);
-            }
-        }
-
-        function generateBuiltInInsights(container) {
-            const latestYear = analysisData.years[analysisData.years.length - 1];
-            const ratios = analysisData.ratios[latestYear];
-
-            const insights = [];
+        function generateAIInsights(current, previous, year) {
+            let html = '<div class="insights-box">';
+            html += '<h3>💡 Financial Health Summary</h3>';
+            html += '<p><strong>Analysis Period:</strong> ' + financialData.years.join(', ') + '</p>';
+            html += '<p><strong>Latest Year:</strong> ' + year + '</p>';
 
             // Liquidity Analysis
-            if (ratios.currentRatio < 1.2) {
-                insights.push({
-                    type: 'warning',
-                    title: '⚠️ Low Liquidity Concern',
-                    content: `Current ratio of ${ratios.currentRatio.toFixed(2)} is below the healthy range (1.5). The company may face challenges meeting short-term obligations. Consider increasing current assets or reducing current liabilities.`
-                });
-            } else if (ratios.currentRatio > 2.5) {
-                insights.push({
-                    type: 'info',
-                    title: '💰 Strong Liquidity Position',
-                    content: `Current ratio of ${ratios.currentRatio.toFixed(2)} indicates excellent short-term financial health. The company has substantial liquid assets to cover liabilities.`
-                });
+            html += '<h4 style="margin-top: 16px; margin-bottom: 8px; color: var(--accent);">Liquidity Position</h4>';
+            if (current.currentRatio >= 2) {
+                html += '<p>✓ <strong>Strong Liquidity:</strong> The company maintains excellent short-term financial health with a current ratio of ' + current.currentRatio.toFixed(2) + '. The organization can comfortably meet its short-term obligations.</p>';
+            } else if (current.currentRatio >= 1.5) {
+                html += '<p>~ <strong>Adequate Liquidity:</strong> The company has a current ratio of ' + current.currentRatio.toFixed(2) + ', indicating solid ability to cover short-term liabilities with current assets.</p>';
+            } else if (current.currentRatio >= 1) {
+                html += '<p>~ <strong>Moderate Liquidity:</strong> With a current ratio of ' + current.currentRatio.toFixed(2) + ', the company can meet obligations but may face challenges during economic downturns.</p>';
+            } else {
+                html += '<p>✗ <strong>Liquidity Concern:</strong> Current ratio of ' + current.currentRatio.toFixed(2) + ' suggests potential difficulties in meeting short-term obligations. Immediate action recommended.</p>';
             }
 
             // Profitability Analysis
-            if (ratios.netProfitMargin > 15) {
-                insights.push({
-                    type: 'success',
-                    title: '📈 Strong Profitability',
-                    content: `Net profit margin of ${ratios.netProfitMargin.toFixed(2)}% shows strong profitability. The company efficiently converts revenue into profit.`
-                });
-            } else if (ratios.netProfitMargin < 5) {
-                insights.push({
-                    type: 'danger',
-                    title: '📉 Low Profitability',
-                    content: `Net profit margin of ${ratios.netProfitMargin.toFixed(2)}% is concerning. Focus on cost reduction and efficiency improvements.`
-                });
+            html += '<h4 style="margin-top: 16px; margin-bottom: 8px; color: var(--accent);">Profitability Assessment</h4>';
+            if (current.netProfitMargin >= 20) {
+                html += '<p>✓ <strong>Excellent Profitability:</strong> Net profit margin of ' + current.netProfitMargin.toFixed(2) + '% demonstrates strong cost management and pricing power.</p>';
+            } else if (current.netProfitMargin >= 10) {
+                html += '<p>~ <strong>Good Profitability:</strong> Net profit margin of ' + current.netProfitMargin.toFixed(2) + '% is healthy for most industries, indicating efficient operations.</p>';
+            } else if (current.netProfitMargin >= 5) {
+                html += '<p>~ <strong>Standard Profitability:</strong> Net profit margin of ' + current.netProfitMargin.toFixed(2) + '% is reasonable but may indicate opportunity for operational efficiency improvements.</p>';
+            } else {
+                html += '<p>✗ <strong>Low Profitability:</strong> Net profit margin of ' + current.netProfitMargin.toFixed(2) + '% suggests cost structure challenges or pricing pressures.</p>';
             }
 
             // Leverage Analysis
-            if (ratios.debtToEquity > 2) {
-                insights.push({
-                    type: 'warning',
-                    title: '⚠️ High Leverage Risk',
-                    content: `Debt-to-equity ratio of ${ratios.debtToEquity.toFixed(2)} indicates significant financial risk. Consider debt reduction strategies to improve financial stability.`
-                });
-            } else if (ratios.debtToEquity < 0.5) {
-                insights.push({
-                    type: 'info',
-                    title: '🛡️ Conservative Capital Structure',
-                    content: `Debt-to-equity ratio of ${ratios.debtToEquity.toFixed(2)} shows a conservative approach. The company has financial flexibility for growth investments.`
-                });
+            html += '<h4 style="margin-top: 16px; margin-bottom: 8px; color: var(--accent);">Leverage & Solvency</h4>';
+            if (current.debtToEquity < 0.5) {
+                html += '<p>✓ <strong>Conservative Financing:</strong> Debt-to-equity ratio of ' + current.debtToEquity.toFixed(2) + ' indicates low financial risk with significant equity cushion.</p>';
+            } else if (current.debtToEquity < 1) {
+                html += '<p>~ <strong>Balanced Capital Structure:</strong> Debt-to-equity of ' + current.debtToEquity.toFixed(2) + ' shows prudent use of leverage without excessive financial risk.</p>';
+            } else if (current.debtToEquity < 2) {
+                html += '<p>~ <strong>Moderate Leverage:</strong> Debt-to-equity ratio of ' + current.debtToEquity.toFixed(2) + ' suggests reliance on debt financing; monitor interest coverage carefully.</p>';
+            } else {
+                html += '<p>✗ <strong>High Leverage Risk:</strong> Debt-to-equity of ' + current.debtToEquity.toFixed(2) + ' indicates significant financial risk. Consider debt reduction strategies.</p>';
             }
 
             // ROE Analysis
-            if (ratios.roe > 20) {
-                insights.push({
-                    type: 'success',
-                    title: '🎯 Excellent Shareholder Returns',
-                    content: `ROE of ${ratios.roe.toFixed(2)}% demonstrates strong returns on shareholder investment. Shareholders are receiving significant value.`
-                });
-            } else if (ratios.roe < 5) {
-                insights.push({
-                    type: 'danger',
-                    title: '📊 Low Shareholder Returns',
-                    content: `ROE of ${ratios.roe.toFixed(2)}% is subpar. The company needs to improve profitability or optimize capital efficiency.`
-                });
+            html += '<h4 style="margin-top: 16px; margin-bottom: 8px; color: var(--accent);">Return on Equity (ROE)</h4>';
+            if (current.roe >= 20) {
+                html += '<p>✓ <strong>Excellent Shareholder Returns:</strong> ROE of ' + current.roe.toFixed(2) + '% demonstrates superior capital efficiency and strong value creation for shareholders.</p>';
+            } else if (current.roe >= 15) {
+                html += '<p>~ <strong>Strong Shareholder Returns:</strong> ROE of ' + current.roe.toFixed(2) + '% is above average, indicating effective use of shareholder capital.</p>';
+            } else if (current.roe >= 10) {
+                html += '<p>~ <strong>Acceptable Shareholder Returns:</strong> ROE of ' + current.roe.toFixed(2) + '% is reasonable, though potential for improvement exists.</p>';
+            } else {
+                html += '<p>✗ <strong>Low Shareholder Returns:</strong> ROE of ' + current.roe.toFixed(2) + '% suggests inefficient capital deployment.</p>';
             }
 
             // Trend Analysis
-            if (analysisData.years.length > 1) {
-                const prevYear = analysisData.years[analysisData.years.length - 2];
-                const prevRatios = analysisData.ratios[prevYear];
-
-                if (ratios.netProfitMargin > prevRatios.netProfitMargin) {
-                    insights.push({
-                        type: 'success',
-                        title: '📈 Improving Profitability Trend',
-                        content: `Net profit margin improved from ${prevRatios.netProfitMargin.toFixed(2)}% to ${ratios.netProfitMargin.toFixed(2)}%. Positive momentum in operational efficiency.`
-                    });
-                }
-            }
-
-            container.innerHTML = insights.map(insight => `
-                <div class="alert alert-${insight.type}">
-                    <span class="alert-icon">${insight.title.split(' ')[0]}</span>
-                    <div>
-                        <strong>${insight.title.substring(2)}</strong>
-                        <p style="margin-top: 0.5rem;">${insight.content}</p>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        async function generateAPIInsights(apiKey, provider, container) {
-            container.innerHTML = '<div class="loading-text"><div class="loading"></div> Generating insights...</div>';
-
-            const latestYear = analysisData.years[analysisData.years.length - 1];
-            const ratios = analysisData.ratios[latestYear];
-
-            const prompt = `You are a financial analyst. Based on these financial ratios for ${analysisData.companyName} in ${latestYear}, provide 3-4 key insights about the company's financial health, trends, and recommendations:
-
-Current Ratio: ${ratios.currentRatio.toFixed(2)}
-Net Profit Margin: ${ratios.netProfitMargin.toFixed(2)}%
-ROE: ${ratios.roe.toFixed(2)}%
-Debt-to-Equity: ${ratios.debtToEquity.toFixed(2)}
-ROA: ${ratios.roa.toFixed(2)}%
-
-Provide actionable insights and recommendations.`;
-
-            try {
-                let response;
+            if (previous) {
+                html += '<h4 style="margin-top: 16px; margin-bottom: 8px; color: var(--accent);">Year-over-Year Trends</h4>';
+                const profitTrend = ((current.netProfitMargin - previous.netProfitMargin) / Math.abs(previous.netProfitMargin)) * 100;
+                const leverageTrend = ((current.debtToEquity - previous.debtToEquity) / Math.abs(previous.debtToEquity)) * 100;
                 
-                if (provider === 'openai') {
-                    response = await fetch('https://api.openai.com/v1/chat/completions', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${apiKey}`
-                        },
-                        body: JSON.stringify({
-                            model: 'gpt-4o-mini',
-                            messages: [{ role: 'user', content: prompt }],
-                            temperature: 0.7,
-                            max_tokens: 500
-                        })
-                    });
-
-                    const data = await response.json();
-                    const insight = data.choices[0].message.content;
-                    container.innerHTML = `<div class="alert alert-info"><div>${insight}</div></div>`;
-                } else if (provider === 'grok') {
-                    container.innerHTML = '<div class="alert alert-info">For Grok API, please use your own API key and implement accordingly.</div>';
+                if (profitTrend > 0) {
+                    html += '<p>✓ <strong>Improving Profitability:</strong> Net profit margin improved by ' + profitTrend.toFixed(1) + '% year-over-year, suggesting better operational efficiency.</p>';
+                } else if (profitTrend < -5) {
+                    html += '<p>✗ <strong>Declining Profitability:</strong> Net profit margin declined by ' + Math.abs(profitTrend).toFixed(1) + '%. Investigate cost increases or revenue pressures.</p>';
                 }
-            } catch (error) {
-                container.innerHTML = `<div class="alert alert-danger">Error: ${error.message}. Showing built-in analysis instead.</div>`;
-                generateBuiltInInsights(container);
+
+                if (leverageTrend < -10) {
+                    html += '<p>✓ <strong>Improving Leverage Position:</strong> Debt-to-equity improved by ' + Math.abs(leverageTrend).toFixed(1) + '%, indicating reduced financial risk.</p>';
+                } else if (leverageTrend > 10) {
+                    html += '<p>✗ <strong>Increasing Leverage:</strong> Debt-to-equity increased by ' + leverageTrend.toFixed(1) + '%. Monitor debt management closely.</p>';
+                }
+            }
+
+            // Recommendations
+            html += '<h4 style="margin-top: 16px; margin-bottom: 8px; color: var(--accent);">Strategic Recommendations</h4>';
+            html += '<ul>';
+            
+            if (current.currentRatio < 1.5) {
+                html += '<li>Improve liquidity by accelerating receivable collections or reducing current liabilities</li>';
+            }
+            if (current.netProfitMargin < 10) {
+                html += '<li>Focus on operational efficiency and cost reduction initiatives</li>';
+            }
+            if (current.debtToEquity > 1.5) {
+                html += '<li>Implement debt reduction strategy or increase equity through retained earnings</li>';
+            }
+            if (current.roe < 12) {
+                html += '<li>Review asset utilization and capital allocation efficiency</li>';
+            }
+            html += '<li>Maintain regular monitoring of financial ratios against industry benchmarks</li>';
+            html += '<li>Consider working capital optimization to improve cash conversion cycle</li>';
+            
+            html += '</ul></div>';
+            return html;
+        }
+
+        // ============================================
+        // TAB SWITCHING & UTILITY
+        // ============================================
+        function switchTab(tab) {
+            document.querySelectorAll('.analysis-section').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+
+            document.getElementById(tab + '-tab').classList.add('active');
+            event.target?.classList.add('active');
+
+            if (tab === 'insights') {
+                renderInsights();
             }
         }
 
-        // ============ EXPORT ============
-        function exportAsJSON() {
-            const dataToExport = {
-                company: analysisData.companyName,
-                period: analysisData.period,
-                years: analysisData.years,
-                ratios: analysisData.ratios,
-                financialData: analysisData.financialData,
-                exportDate: new Date().toISOString()
-            };
+        function selectYear(year) {
+            document.querySelectorAll('#year-selector .year-badge').forEach(badge => {
+                badge.classList.remove('active');
+                if (badge.textContent == year) badge.classList.add('active');
+            });
 
-            const json = JSON.stringify(dataToExport, null, 2);
-            downloadFile(json, `${analysisData.companyName}-analysis.json`, 'application/json');
-        }
+            const ratios = calculateRatios(year);
+            const income = financialData.incomeStatement[year] || {};
+            const balance = financialData.balanceSheet[year] || {};
 
-        function exportAsCSV() {
-            const ratios = analysisData.ratios;
-            const years = analysisData.years;
+            let html = '<div class="metrics-grid">';
 
-            const headers = ['Ratio', ...years];
-            const rows = [
-                ['Current Ratio', ...years.map(y => ratios[y]?.currentRatio.toFixed(2) || '')],
-                ['Net Profit Margin (%)', ...years.map(y => ratios[y]?.netProfitMargin.toFixed(2) || '')],
-                ['ROE (%)', ...years.map(y => ratios[y]?.roe.toFixed(2) || '')],
-                ['Debt-to-Equity', ...years.map(y => ratios[y]?.debtToEquity.toFixed(2) || '')],
+            const metrics = [
+                { label: 'Current Ratio', value: ratios.currentRatio?.toFixed(2), unit: 'x' },
+                { label: 'Net Profit Margin', value: ratios.netProfitMargin?.toFixed(2), unit: '%' },
+                { label: 'ROA', value: ratios.roa?.toFixed(2), unit: '%' },
+                { label: 'ROE', value: ratios.roe?.toFixed(2), unit: '%' },
+                { label: 'Debt-to-Equity', value: ratios.debtToEquity?.toFixed(2), unit: 'x' },
+                { label: 'Asset Turnover', value: ratios.assetTurnover?.toFixed(2), unit: 'x' }
             ];
 
-            const csv = [headers, ...rows].map(r => r.join(',')).join('\n');
-            downloadFile(csv, `${analysisData.companyName}-ratios.csv`, 'text/csv');
+            metrics.forEach(metric => {
+                const trend = calculateTrend(Object.keys(ratios).find(k => ratios[k] === parseFloat(metric.value)));
+                html += `
+                    <div class="metric-card">
+                        <div class="metric-label">${metric.label}</div>
+                        <div class="metric-value">${metric.value} ${metric.unit}</div>
+                        <div class="metric-change ${trend > 0 ? '' : 'negative'}">
+                            ${trend > 0 ? '↑' : '↓'} ${Math.abs(trend).toFixed(1)}%
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += '</div>';
+
+            html += `
+                <h3 style="margin-top: 30px; margin-bottom: 16px; font-size: 16px; font-weight: 600;">Detailed Ratios</h3>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>Ratio</th>
+                                <th>Value</th>
+                                <th>Interpretation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td rowspan="3"><strong>Liquidity</strong></td>
+                                <td>Current Ratio</td>
+                                <td>${ratios.currentRatio.toFixed(2)}</td>
+                                <td>${getInterpretation('currentRatio', ratios.currentRatio)}</td>
+                            </tr>
+                            <tr>
+                                <td>Quick Ratio</td>
+                                <td>${ratios.quickRatio.toFixed(2)}</td>
+                                <td>${getInterpretation('quickRatio', ratios.quickRatio)}</td>
+                            </tr>
+                            <tr>
+                                <td>Cash Ratio</td>
+                                <td>${ratios.cashRatio.toFixed(2)}</td>
+                                <td>Immediate liquidity position</td>
+                            </tr>
+                            <tr>
+                                <td rowspan="4"><strong>Profitability</strong></td>
+                                <td>Net Profit Margin</td>
+                                <td>${ratios.netProfitMargin.toFixed(2)}%</td>
+                                <td>${getInterpretation('netProfitMargin', ratios.netProfitMargin)}</td>
+                            </tr>
+                            <tr>
+                                <td>ROA</td>
+                                <td>${ratios.roa.toFixed(2)}%</td>
+                                <td>Asset efficiency in generating profit</td>
+                            </tr>
+                            <tr>
+                                <td>ROE</td>
+                                <td>${ratios.roe.toFixed(2)}%</td>
+                                <td>${getInterpretation('roe', ratios.roe)}</td>
+                            </tr>
+                            <tr>
+                                <td>Operating Margin</td>
+                                <td>${ratios.operatingMargin.toFixed(2)}%</td>
+                                <td>Operational efficiency</td>
+                            </tr>
+                            <tr>
+                                <td rowspan="3"><strong>Solvency</strong></td>
+                                <td>Debt-to-Equity</td>
+                                <td>${ratios.debtToEquity.toFixed(2)}</td>
+                                <td>${getInterpretation('debtToEquity', ratios.debtToEquity)}</td>
+                            </tr>
+                            <tr>
+                                <td>Debt-to-Assets</td>
+                                <td>${ratios.debtToAssets.toFixed(2)}</td>
+                                <td>Financial leverage position</td>
+                            </tr>
+                            <tr>
+                                <td>Interest Coverage</td>
+                                <td>${ratios.interestCoverage.toFixed(2)}x</td>
+                                <td>Ability to cover interest obligations</td>
+                            </tr>
+                            <tr>
+                                <td rowspan="3"><strong>Efficiency</strong></td>
+                                <td>Asset Turnover</td>
+                                <td>${ratios.assetTurnover.toFixed(2)}</td>
+                                <td>How effectively assets generate revenue</td>
+                            </tr>
+                            <tr>
+                                <td>Receivables Turnover</td>
+                                <td>${ratios.receivablesTurnover.toFixed(2)}</td>
+                                <td>Speed of collecting receivables</td>
+                            </tr>
+                            <tr>
+                                <td>Inventory Turnover</td>
+                                <td>${ratios.inventoryTurnover.toFixed(2)}</td>
+                                <td>Inventory management efficiency</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            `;
+
+            html += '<h3 style="margin-top: 30px; margin-bottom: 16px; font-size: 16px; font-weight: 600;">Trend Analysis</h3>';
+            html += '<div class="main-grid"><div class="card"><div class="chart-container"><canvas id="trendChart"></canvas></div></div>';
+            html += '<div class="card"><div class="chart-container"><canvas id="profitChart"></canvas></div></div></div>';
+
+            document.getElementById('ratio-content').innerHTML = html;
+
+            setTimeout(() => {
+                drawTrendChart();
+                drawProfitChart();
+            }, 100);
+        }
+
+        function resetForm() {
+            if (confirm('Reset all data? This cannot be undone.')) {
+                document.querySelectorAll('.financial-input').forEach(input => input.value = '');
+                document.getElementById('companyName').value = 'ABC Insurance Ltd';
+            }
+        }
+
+        // ============================================
+        // EXPORT FUNCTIONS
+        // ============================================
+        function exportToJSON() {
+            const exportData = {
+                company: financialData.company,
+                analysisDate: new Date().toISOString(),
+                period: financialData.period,
+                years: financialData.years,
+                incomeStatement: financialData.incomeStatement,
+                balanceSheet: financialData.balanceSheet,
+                cashFlow: financialData.cashFlow,
+                ratios: financialData.years.reduce((acc, year) => {
+                    acc[year] = calculateRatios(year);
+                    return acc;
+                }, {})
+            };
+
+            const json = JSON.stringify(exportData, null, 2);
+            downloadFile(json, 'financial-analysis.json', 'application/json');
+        }
+
+        function exportToCSV() {
+            let csv = 'Company,Year,Metric,Value\n';
+            
+            financialData.years.forEach(year => {
+                const ratios = calculateRatios(year);
+                Object.keys(ratios).forEach(key => {
+                    csv += `"${financialData.company}",${year},"${key}",${ratios[key].toFixed(4)}\n`;
+                });
+            });
+
+            downloadFile(csv, 'financial-analysis.csv', 'text/csv');
         }
 
         function downloadFile(content, filename, type) {
             const blob = new Blob([content], { type });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = filename;
-            link.click();
-            URL.revokeObjectURL(url);
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
         }
 
-        // ============ UTILITY FUNCTIONS ============
-        function formatNumber(num) {
-            return (num / 1000000).toFixed(2) + 'M';
-        }
-
-        // ============ INITIALIZATION ============
-        document.getElementById('themeToggle').addEventListener('click', toggleDarkMode);
-
-        function toggleDarkMode() {
-            document.body.style.filter = document.body.style.filter === 'invert(1)' ? 'invert(0)' : 'invert(1)';
-        }
+        // ============================================
+        // INITIALIZATION
+        // ============================================
+        document.addEventListener('DOMContentLoaded', () => {
+            updateYearBadges();
+        });
     </script>
 </body>
 </html>
